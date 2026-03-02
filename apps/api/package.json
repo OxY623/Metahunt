@@ -1,0 +1,11 @@
+{
+  "name": "api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "setup": "python3 -m venv venv && ./venv/bin/pip install -r requirements.txt",
+    "dev": "./venv/bin/python -m uvicorn main:app --reload --port 8000",
+    "test": "pytest",
+    "start": "uvicorn main:app --port 8000"
+  }
+}
