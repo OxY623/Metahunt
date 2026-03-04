@@ -2,6 +2,7 @@ import type {ReactNode} from 'react';
 import clsx from 'clsx';
 import Heading from '@theme/Heading';
 import styles from './styles.module.css';
+import MetaHuntLogo from '../MetaHuntLogo/MetaHuntLogo';
 
 type FeatureItem = {
   title: string;
@@ -9,34 +10,37 @@ type FeatureItem = {
   description: ReactNode;
 };
 
+
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Easy to Use',
+    title: 'Выбери фракцию',
     Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        Четыре фракции — четыре стиля игры. Волк, Лиса, Медведь или Сова.
+        Каждый выбор меняет интерфейс, скиллы и врагов. Выбор необратим.
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
+    title: 'Осколки решают всё',
     Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Внутренняя валюта <code>Shards</code> управляет скиллами, банами и
+        анонимностью. Медведь берёт налог. Сова продаёт секреты. Лиса получает
+        откат. Волк просто злится.
       </>
     ),
   },
   {
-    title: 'Powered by React',
+    title: 'FastAPI + Next.js',
     Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        Бэкенд на <code>FastAPI</code> + <code>PostgreSQL</code>, фронт на{' '}
+        <code>Next.js</code> в пиксельном киберпанк стиле. Монорепо на
+        Turborepo. Задокументировано здесь.
       </>
     ),
   },
@@ -49,6 +53,7 @@ function Feature({title, Svg, description}: FeatureItem) {
         <Svg className={styles.featureSvg} role="img" />
       </div>
       <div className="text--center padding-horiz--md">
+        
         <Heading as="h3">{title}</Heading>
         <p>{description}</p>
       </div>

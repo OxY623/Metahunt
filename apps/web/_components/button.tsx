@@ -1,5 +1,6 @@
 import React from "react";
-import clsx from "../helpers/clsx";
+import clsx from "../../../packages/ui/helpers/clsx";
+
 
 type Variant = "primary" | "secondary" | "danger";
 

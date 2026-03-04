@@ -1,5 +1,5 @@
 import Image, { type ImageProps } from "next/image";
-import { Button } from "@repo/ui/button";
+import { Button } from "../_components/button";
 import styles from "./page.module.css";
 
 type Props = Omit<ImageProps, "src"> & {
@@ -37,6 +37,21 @@ export default function Home() {
           </li>
           <li>Save and see your changes instantly.</li>
         </ol>
+        <Button>Start Hunt</Button>
+
+<Button variant="secondary">
+  View Profile
+</Button>
+<div className="bg-red-500 p-10 text-white">
+  RED TEST
+</div>
+<Button variant="danger" className="text-white-400">
+  Ban User
+</Button>
+<div className="p-10 text-orange-200" style={{background: "var( --meta-gradient)"}}>Hellow Test</div>
+<Button loading>
+  Loading
+</Button>
 
         <div className={styles.ctas}>
           <a
@@ -63,7 +78,7 @@ export default function Home() {
             Read our docs
           </a>
         </div>
-        <Button appName="web" className={styles.secondary}>
+        <Button variant="secondary" className={styles.secondary}>
           Open alert
         </Button>
       </main>

@@ -1,6 +1,31 @@
+@import "tailwindcss";
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --meta-gradient: linear-gradient(135deg, #8B5CF6 0%, #00F0FF 100%);
+  --shadow-neon: 0 0 12px rgba(139, 92, 246, 0.6);
+  ---cyanGlow: 0 0 14px rgba(0, 240, 255, 0.6);
+}
+
+@theme {
+  /* meta */
+  --color-meta-bg: #0B0F1A;
+  --color-meta-surface: #111827;
+  --color-meta-elevated: #1A2235;
+  --color-meta-border: #222B45;
+  /* brand */
+  --color-brand-purple: #8B5CF6;
+  --color-brand-cyan: #00F0FF;
+  --color-brand-pink: #FF3AF2;
+  /* state */
+  --color-state-success: #22C55E;
+  --color-state-warning: #F59E0B;
+  --color-state-danger: #EF4444;
+  /* text */
+  --color-state-primary: #E6EDF3;
+  --color-state-muted: #94A3B8;
+  --color-state-dim: #64748B;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -47,4 +72,17 @@ a {
   .imgDark {
     display: unset;
   }
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-1px, 1px); }
+  40% { transform: translate(1px, -1px); }
+  60% { transform: translate(-1px, 0px); }
+  80% { transform: translate(1px, 1px); }
+  100% { transform: translate(0); }
+}
+
+.glitch-hover:hover {
+  animation: glitch 0.3s linear infinite;
 }
