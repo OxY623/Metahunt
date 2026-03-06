@@ -27,7 +27,7 @@ export function Button({
       "bg-meta-surface border border-meta-border text-text-primary hover:border-brand-cyan",
 
     danger:
-      "bg-danger text-white hover:shadow-[0_0_12px_rgba(239,68,68,0.6)]",
+      "bg-state-danger text-white hover:shadow-[0_0_12px_rgba(239,68,68,0.6)]",
   };
 
   return (

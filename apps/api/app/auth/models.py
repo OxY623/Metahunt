@@ -3,7 +3,7 @@
 # Чтобы можно было его отозвать (logout, смена пароля, подозрительная активность)
 # JWT сам по себе нельзя "отозвать" — он валиден до истечения срока
 # Храня токен в БД, мы можем проверить: "этот токен ещё активен?"
-
+from datetime import datetime, timezone
 import uuid
 from datetime import datetime
 from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey
@@ -31,10 +31,10 @@ class RefreshToken(Base):
     # True  — токен отозван (logout)
     # Зачем флаг вместо удаления? Для аудита: видим историю сессий
     
-    expires_at = Column(DateTime, nullable=False)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
     # Дублируем дату истечения из JWT
     # Можно периодически чистить БД: DELETE WHERE expires_at < NOW()
     
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     
     user = relationship("User")

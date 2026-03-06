@@ -5,7 +5,7 @@
 # 3. Вернуть ответ
 # Никакой бизнес-логики здесь нет
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 # APIRouter — роутер для группировки эндпоинтов одного модуля
 # Depends — для dependency injection
 from app.auth.dependencies import get_current_user
@@ -32,9 +32,10 @@ async def get_me(
     service: UserService = Depends(get_user_service),
     # Depends() — FastAPI сам создаст UserService со всеми зависимостями
 ):
-    # Пока без авторизации, захардкодим id для теста
-    # После добавления auth: return await service.get_me(current_user.id)
-    pass
+    user = await service.get_me(current_user.id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
 
 @router.patch(
     "/profile",
@@ -47,7 +48,7 @@ async def update_profile(
     current_user: User = Depends(get_current_user),
     service: UserService = Depends(get_user_service),
 ):
-    pass
+    return await service.update_profile(current_user, dto)
 
 @router.patch(
     "/password",
@@ -57,6 +58,7 @@ async def update_profile(
 )
 async def change_password(
     dto: ChangePassword,
+    current_user: User = Depends(get_current_user),
     service: UserService = Depends(get_user_service),
 ):
-    pass
+    await service.change_password(current_user.id, dto)

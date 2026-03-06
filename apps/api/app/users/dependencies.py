@@ -22,7 +22,7 @@ def get_user_service(
     # То же самое: FastAPI вызовет get_user_repository, получит репозиторий
     # и передаст его в get_user_service
 ) -> UserService:
-    return UserService(repo)         # создаём сервис с репозиторием
+    return UserService(repo)
 
 # Итоговая цепочка которую FastAPI строит автоматически при каждом запросе:
 # get_session() → session

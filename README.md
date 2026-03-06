@@ -1,172 +1,54 @@
-# Metahunt 🏙️
+# MetaHunt 🏙️
 
-Городская MMO для поиска, участия в событиях и прокачки своего влияния.
+Городская MMO для поиска, участия в событиях и прокачки влияния в цифровом городе.
 
-## 🚀 Фичи
+## Структура монорепо
 
-- Карта с событиями
-- Чат в реальном времени
-- XP и прогресс
-- Фракции и рейтинги (Phase 2)
+| Путь | Описание |
+|------|----------|
+| `apps/web` | Next.js 16 + React 19 фронтенд (Tailwind v4, @repo/ui) |
+| `apps/api` | FastAPI бэкенд |
+| `apps/docs` | Docusaurus документация |
+| `packages/ui` | UI-компоненты (Button, Card, Code) |
+| `packages/tailwind` | Tailwind v4 конфигурация для монорепо |
 
-## 🧱 Структура монорепо
-
-- `apps/web` — Next.js фронтенд
-- `apps/api` — FastAPI бэкенд
-- `packages/types` — общие типы
-- `packages/ui` — UI-компоненты
-- `packages/config` — конфиги (ESLint, TSConfig, Prettier)
-- `apps/docs` — документация (Docusaurus)
-
-## ⚡ Быстрый старт
+## Быстрый старт
 
 ```bash
-git clone https://github.com/OxY623/metahunt.git
-cd metahunt
 pnpm install
 
-# Запуск фронтенда
-pnpm dev:web
+# Запуск API (порт 8000)
+cd apps/api && pnpm setup && pnpm dev
 
-# Запуск бэкенда
-cd apps/api
-uvicorn main:app --reload --port 4000
+# Запуск фронтенда (порт 3000)
+cd apps/web && pnpm dev
 
-# Turborepo starter
-
-This Turborepo starter is maintained by the Turborepo core team.
-
-## Using this example
-
-Run the following command:
-
-```sh
-npx create-turbo@latest
-```
-*   **Next.js** (Port 3000)
-*   **Docusaurus** (Port 3001)
-*   **FastAPI** (Port 8000)
-
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+# Документация (порт 3001)
+cd apps/docs && pnpm start
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+Или из корня:
 
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+```bash
+pnpm dev
 ```
 
-### Develop
+## Переменные окружения
 
-To develop all apps and packages, run the following command:
+### apps/web
+- `NEXT_PUBLIC_API_URL` — URL API (по умолчанию `http://localhost:8000`)
 
-```
-cd my-turborepo
+### apps/api
+- `DATABASE_URL` — PostgreSQL connection string
+- `SECRET_KEY` — JWT секрет
+- `ALGORITHM` — HS256
 
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
+## API
 
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
+- Swagger UI: http://localhost:8000/api/docs
+- ReDoc: http://localhost:8000/api/redoc
+- Health: GET /health
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+## Документация
 
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+Запуск: `cd apps/docs && pnpm start` → http://localhost:3001

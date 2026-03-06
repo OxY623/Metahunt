@@ -2,7 +2,8 @@
 # Repository — единственное место где пишутся SQL запросы
 # Service не знает как устроена БД, он просто вызывает методы репозитория
 # Это позволяет легко заменить PostgreSQL на другую БД не трогая бизнес-логику
-
+from sqlalchemy.exc import IntegrityError
+from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select    # select — строим SELECT запросы
 from uuid import UUID
@@ -13,21 +14,33 @@ class UserRepository:
         # session — подключение к БД, приходит через dependency injection
         self.session = session
 
+    # async def create(self, email: str, password_hash: str, nickname: str) -> User:
+    #     user = User(email=email, password_hash=password_hash, nickname=nickname)
+    #     # Создаём объект модели — пока это просто Python объект, не запись в БД
+        
+    #     self.session.add(user)
+    #     # add() — помечаем объект для сохранения (добавляем в "очередь")
+        
+    #     await self.session.commit()
+    #     # commit() — выполняем INSERT в БД, транзакция завершается
+    #     # await — потому что операция асинхронная (не блокирует сервер)
+        
+    #     await self.session.refresh(user)
+    #     # refresh() — перечитываем объект из БД
+    #     # Нужно чтобы получить id и created_at которые сгенерировала БД
+        
+    #     return user
     async def create(self, email: str, password_hash: str, nickname: str) -> User:
         user = User(email=email, password_hash=password_hash, nickname=nickname)
-        # Создаём объект модели — пока это просто Python объект, не запись в БД
-        
         self.session.add(user)
-        # add() — помечаем объект для сохранения (добавляем в "очередь")
-        
-        await self.session.commit()
-        # commit() — выполняем INSERT в БД, транзакция завершается
-        # await — потому что операция асинхронная (не блокирует сервер)
-        
+    
+        try:
+            await self.session.commit()
+        except IntegrityError:
+            await self.session.rollback()
+            raise HTTPException(status_code=400, detail="Email or nickname already registered")
+    
         await self.session.refresh(user)
-        # refresh() — перечитываем объект из БД
-        # Нужно чтобы получить id и created_at которые сгенерировала БД
-        
         return user
 
     async def get_by_id(self, user_id: UUID) -> User | None:

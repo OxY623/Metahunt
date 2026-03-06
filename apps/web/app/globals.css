@@ -1,11 +1,14 @@
 @import "tailwindcss";
 
+/* Tailwind v4: сканировать только src packages/ui (без node_modules) */
+@source "../../packages/ui/src";
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
   --meta-gradient: linear-gradient(135deg, #8B5CF6 0%, #00F0FF 100%);
   --shadow-neon: 0 0 12px rgba(139, 92, 246, 0.6);
-  ---cyanGlow: 0 0 14px rgba(0, 240, 255, 0.6);
+  --shadow-cyan: 0 0 14px rgba(0, 240, 255, 0.6);
 }
 
 @theme {
@@ -23,9 +26,9 @@
   --color-state-warning: #F59E0B;
   --color-state-danger: #EF4444;
   /* text */
-  --color-state-primary: #E6EDF3;
-  --color-state-muted: #94A3B8;
-  --color-state-dim: #64748B;
+  --color-text-primary: #E6EDF3;
+  --color-text-muted: #94A3B8;
+  --color-text-dim: #64748B;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -42,8 +45,13 @@ body {
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  font-family: var(--font-mono), "JetBrains Mono", monospace;
+  color: var(--color-text-primary);
+  background: var(--color-meta-bg);
+}
+
+.font-display {
+  font-family: var(--font-display), "Orbitron", sans-serif;
 }
 
 * {
@@ -85,4 +93,81 @@ a {
 
 .glitch-hover:hover {
   animation: glitch 0.3s linear infinite;
+}
+
+/* Анимация медленного движения */
+@keyframes bgFloat {
+  0% { transform: scale(1) translateY(0px); }
+  50% { transform: scale(1.05) translateY(-20px); }
+  100% { transform: scale(1) translateY(0px); }
+}
+
+/* Градиентное неоновое свечение */
+@keyframes glowPulse {
+  0% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+  100% { opacity: 0.4; }
+}
+
+/* === CYBERPUNK UI === */
+.cyber-border-b {
+  border-bottom: 1px solid var(--color-meta-border);
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.15);
+}
+.cyber-border {
+  border: 1px solid var(--color-brand-cyan);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.3), inset 0 0 12px rgba(0, 240, 255, 0.05);
+}
+.cyber-border-pink {
+  border: 1px solid var(--color-brand-pink);
+  box-shadow: 0 0 12px rgba(255, 58, 242, 0.3);
+}
+.cyber-input {
+  background: rgba(11, 15, 26, 0.9);
+  border: 1px solid var(--color-meta-border);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.cyber-input:focus {
+  outline: none;
+  border-color: var(--color-brand-cyan);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+}
+.cyber-card {
+  background: linear-gradient(135deg, rgba(17, 24, 39, 0.95) 0%, rgba(11, 15, 26, 0.98) 100%);
+  border: 1px solid var(--color-meta-border);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.1), inset 0 1px 0 rgba(255,255,255,0.03);
+}
+.cyber-btn {
+  font-family: var(--font-display), sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+.cyber-btn:hover {
+  text-shadow: 0 0 10px currentColor;
+}
+.scanlines::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.1) 2px,
+    rgba(0,0,0,0.1) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+.neon-text-cyan {
+  text-shadow: 0 0 10px var(--color-brand-cyan), 0 0 20px var(--color-brand-cyan);
+}
+.neon-text-pink {
+  text-shadow: 0 0 10px var(--color-brand-pink);
+}
+.glitch-hover:hover {
+  animation: glitch 0.15s linear 2;
 }

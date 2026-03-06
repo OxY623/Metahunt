@@ -23,7 +23,7 @@ def create_access_token(user_id: UUID) -> str:
         "sub": str(user_id),     # sub (subject) — стандартное поле JWT, id пользователя
         "type": "access",        # наш кастомный claim — тип токена
         "iat": now,              # issued at — когда выдан
-        "exp": now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE),  # когда истекает
+        "exp": now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),  # когда истекает
     }
     
     return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
@@ -41,7 +41,7 @@ def create_refresh_token(user_id: UUID) -> str:
         "sub": str(user_id),
         "type": "refresh",       # отличаем от access token
         "iat": now,
-        "exp": now + timedelta(days=settings.REFRESH_TOKEN_EXPIRE),
+        "exp": now + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
     }
     
     return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)

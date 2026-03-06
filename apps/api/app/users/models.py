@@ -67,13 +67,7 @@ class User(Base):              # наследуемся от Base — SQLAlchemy
     game_profile = relationship(
         "GameProfile",
         back_populates="user",
-        userlist=False,
+        uselist=False,
         cascade="all, delete-orphan"
     )
     # Relationships — SQLAlchemy подгружает связанные объекты автоматически
-    # back_populates — двусторонняя связь: balance.user тоже будет работать
-    # uselist=False — у пользователя ОДИН баланс (не список)
-    balance = relationship("Balance", back_populates="user", uselist=False)
-    transactions = relationship("Transaction", back_populates="user")
-    tickets = relationship("Ticket", back_populates="user")
-    activity_logs = relationship("ActivityLog", back_populates="user")

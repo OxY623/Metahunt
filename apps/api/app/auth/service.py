@@ -114,7 +114,7 @@ class AuthService:
         db_token = RefreshToken(
             user_id    = user_id,
             token      = token,
-            expires_at = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE),
+            expires_at = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
         )
         self.session.add(db_token)
         await self.session.commit()

@@ -10,7 +10,7 @@ export default function clsx(...args: any[]):string{
         const deep_classes = clsx(...arg);
         classes.push(deep_classes);
       } else if(typeof arg === "object" && arg !== null){
-         for(const key in args){
+         for(const key in arg){
             if(arg[key]){
                 classes.push(key);
             }
