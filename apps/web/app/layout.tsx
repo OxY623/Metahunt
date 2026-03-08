@@ -23,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru">
+    <html lang="ru" suppressHydrationWarning>
       <body className={`${orbitron.variable} ${jetbrains.variable} font-sans antialiased relative min-h-screen overflow-hidden text-text-primary`}>
         {/* Фоновый слой */}
         <div className="fixed inset-0 -z-10">

@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select    # select — строим SELECT запросы
+from sqlalchemy.orm import selectinload
 from uuid import UUID
 from app.users.models import User
 
@@ -73,3 +74,13 @@ class UserRepository:
         await self.session.commit()  # UPDATE в БД
         await self.session.refresh(user)
         return user
+
+    async def list_with_profile(self, limit: int = 50, offset: int = 0) -> list[User]:
+        result = await self.session.execute(
+            select(User)
+            .options(selectinload(User.game_profile))
+            .order_by(User.created_at.desc())
+            .limit(limit)
+            .offset(offset)
+        )
+        return list(result.scalars().all())

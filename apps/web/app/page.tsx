@@ -196,6 +196,20 @@ export default function HomePage() {
           </div>
           {token && user && (
             <nav className="flex items-center gap-2">
+              {user.role === "ADMIN" && (
+                <a
+                  href="/admin"
+                  className="cyber-btn px-4 py-2 text-sm text-brand-pink hover:bg-brand-pink/10 cyber-border rounded"
+                >
+                  ADMIN
+                </a>
+              )}
+              <a
+                href="/chat"
+                className="cyber-btn px-4 py-2 text-sm text-brand-cyan hover:bg-brand-cyan/10 cyber-border rounded"
+              >
+                ЧАТ
+              </a>
               <button
                 onClick={() => setView("dashboard")}
                 className="cyber-btn px-4 py-2 text-sm text-brand-cyan hover:bg-brand-cyan/10 cyber-border rounded"

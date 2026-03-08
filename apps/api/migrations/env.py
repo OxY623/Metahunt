@@ -9,6 +9,7 @@ from app.database import Base
 from app.users.models import User  # импортируйте все ваши модели
 from app.auth.models import RefreshToken
 from app.game.models import GameProfile
+from app.chat.models import Message
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
