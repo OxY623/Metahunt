@@ -75,7 +75,7 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: 'Metahunt Docs',
+      // title: 'Docs',
       logo: {
         alt: 'My Site Logo',
         src: 'img/logo.svg',

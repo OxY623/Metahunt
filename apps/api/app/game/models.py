@@ -1,5 +1,3 @@
-# app/game/models.py
-
 import uuid
 from datetime import datetime
 from sqlalchemy import Column, String, Integer, Float, DateTime, Enum as SAEnum, ForeignKey
@@ -10,9 +8,11 @@ from app.database import Base
 
 
 class Archetype(str, enum.Enum):
-    FOXY = "FOXY"   # харизма, активность, ивенты
-    OXY  = "OXY"    # стратегия, организация, аналитика
-    # None на старте — игрок ещё не выбрал сторону
+    FOXY = "FOXY"   # Харизма, активность, влияние
+    OXY  = "OXY"    # Стратегия, надежность, организация
+    BEAR = "BEAR"   # Стойкость, сила, защита
+    OWL  = "OWL"    # Интеллект, наблюдение, стратегия
+    # None по дефолту в базе или до выбора фракции
 
 
 class GameProfile(Base):
@@ -20,46 +20,47 @@ class GameProfile(Base):
 
     id         = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
-    # ForeignKey — связь с таблицей users
-    # ondelete="CASCADE" — на уровне БД: удалили user → удалился game_profile
+    # ForeignKey к связи с таблицей users
+    # ondelete="CASCADE" — при удалении user -> удаляем game_profile
     user_id    = Column(
         UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),
-        unique=True,        # один игрок = один профиль
+        unique=True,        # Один юзер = один профиль
         nullable=False
     )
 
-    # Архетип — выбирается один раз при онбординге
-    # nullable=True — новый пользователь ещё не выбрал
+    # Фракция и архетип героя при инициализации
+    # nullable=True — может отсутствовать, пока не выбран архетип
     archetype  = Column(SAEnum(Archetype), nullable=True, default=None)
 
-    # --- Уровень и опыт ---
+    # --- Прогресс в игре ---
     level      = Column(Integer, default=1, nullable=False)
     xp         = Column(Integer, default=0, nullable=False)
-    # xp_to_next считается динамически в сервисе, не хранится в БД
-    # Зачем? Если изменим формулу — не нужно пересчитывать все записи
+    # xp_to_next вычисляется динамически в схемах, не хранится в БД
 
     # --- Характеристики (1.0 — 100.0) ---
-    # Float позволяет дробные значения: харизма 47.5
-    # Для FOXY прокачиваются: charisma, influence, activity
-    # Для OXY прокачиваются:  strategy, reliability, organization
-    charisma     = Column(Float, default=0.0, nullable=False)  # FOXY
-    influence    = Column(Float, default=0.0, nullable=False)  # FOXY
+    # Для FOXY приоритетны: charisma, influence, activity
+    # Для OXY приоритетны:  strategy, reliability, organization
+    charisma     = Column(Float, default=0.0, nullable=False)  # FOXY / OWL
+    influence    = Column(Float, default=0.0, nullable=False)  # FOXY / OWL
     activity     = Column(Float, default=0.0, nullable=False)  # FOXY
-    strategy     = Column(Float, default=0.0, nullable=False)  # OXY
-    reliability  = Column(Float, default=0.0, nullable=False)  # OXY
-    organization = Column(Float, default=0.0, nullable=False)  # OXY
+    strategy     = Column(Float, default=0.0, nullable=False)  # OXY / OWL
+    reliability  = Column(Float, default=0.0, nullable=False)  # OXY / BEAR
+    organization = Column(Float, default=0.0, nullable=False)  # OXY / BEAR
 
     # --- Репутация ---
-    # Общая для всех архетипов, зарабатывается за активность на платформе
     reputation   = Column(Float, default=0.0, nullable=False)
 
-    # --- Сезон ---
-    # В будущем: сброс сезонных очков каждые 2 месяца
+    # --- Очки ---
+    # В планах: общие сезонные очки каждые 2 недели
     season_points = Column(Integer, default=0, nullable=False)
+
+    # --- Ресурсы ---
+    shards      = Column(Integer, default=100, nullable=False)  # Внутриигровая валюта (осколки)
+    energy      = Column(Integer, default=100, nullable=False)  # Лимит действий в день
 
     created_at   = Column(DateTime, default=datetime.utcnow)
     updated_at   = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Обратная связь к User
+    # Обратная связь с User
     user = relationship("User", back_populates="game_profile")

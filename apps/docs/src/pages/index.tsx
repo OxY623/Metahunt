@@ -1,44 +1,22 @@
 import type {ReactNode} from 'react';
-import clsx from 'clsx';
-import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
+import Hero from '@site/src/components/Hero/Hero';
+import PrologSection from '@site/src/components/PrologSection/PrologSection';
 import HomepageFeatures from '@site/src/components/HomepageFeatures';
-import Heading from '@theme/Heading';
-
 import styles from './index.module.css';
-import MetaHuntLogo from '../components/MetaHuntLogo/MetaHuntLogo';
-
-function HomepageHeader() {
-  const {siteConfig} = useDocusaurusContext();
-  return (
-    <header className={clsx('hero hero--primary', styles.heroBanner)}>
-      <div className="container">
-        <MetaHuntLogo/>
-        <Heading as="h1" className="hero__title">
-          {siteConfig.title}
-        </Heading>
-        <p className="hero__subtitle">{siteConfig.tagline}</p>
-        <div className={styles.buttons}>
-          <Link
-            className="button button--secondary button--lg"
-            to="/docs/concept/overview">
-            Docs for The MetaHunt
-          </Link>
-        </div>
-      </div>
-    </header>
-  );
-}
 
 export default function Home(): ReactNode {
   const {siteConfig} = useDocusaurusContext();
+
   return (
     <Layout
-      title={`This is ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />">
-      <HomepageHeader />
-      <main>
+      title={`MetaHunt & ${siteConfig.tagline}`}
+      description="Prolog by ADMIN/ROOT. MMO для хакеров, тактиков и Shards."
+    >
+      <Hero />
+      <main className={styles.main}>
+        <PrologSection />
         <HomepageFeatures />
       </main>
     </Layout>

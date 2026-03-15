@@ -1,0 +1,53 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#050816"/>
+      <stop offset="0.6" stop-color="#0B0F1A"/>
+      <stop offset="1" stop-color="#120822"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg2)"/>
+
+  <!-- Terminal frame -->
+  <rect x="220" y="150" width="1160" height="600" rx="26" fill="#060B16" stroke="#222B45" stroke-width="2"/>
+  <rect x="260" y="210" width="1080" height="500" rx="18" fill="#0B0F1A" stroke="#00F0FF" stroke-opacity="0.25"/>
+
+  <!-- Grid -->
+  <g opacity="0.12">
+    <path d="M260 260 H1340" stroke="#00F0FF"/>
+    <path d="M260 310 H1340" stroke="#00F0FF"/>
+    <path d="M260 360 H1340" stroke="#00F0FF"/>
+    <path d="M260 410 H1340" stroke="#00F0FF"/>
+    <path d="M260 460 H1340" stroke="#00F0FF"/>
+    <path d="M260 510 H1340" stroke="#00F0FF"/>
+    <path d="M260 560 H1340" stroke="#00F0FF"/>
+    <path d="M260 610 H1340" stroke="#00F0FF"/>
+  </g>
+
+  <!-- Code -->
+  <g filter="url(#glow)" font-family="JetBrains Mono, monospace" font-size="44" letter-spacing="3">
+    <text x="340" y="340" fill="#00F0FF" fill-opacity="0.9">ADAPT()</text>
+    <text x="340" y="430" fill="#FF3AF2" fill-opacity="0.75">SURVIVE()</text>
+    <text x="340" y="520" fill="#00F0FF" fill-opacity="0.85">EVOLVE()</text>
+  </g>
+
+  <!-- Fox mark -->
+  <g transform="translate(1180 560)" filter="url(#glow)" opacity="0.7">
+    <path d="M40 0 L58 22 L80 6 L74 36 L96 56 L70 56 L62 82 L46 60 L24 72 L30 48 L12 32 L38 30 Z" fill="#FF3AF2" fill-opacity="0.35"/>
+    <path d="M44 8 L56 22 L72 12 L68 34 L82 48 L66 48 L60 64 L48 50 L34 58 L38 42 L26 32 L42 30 Z" fill="#00F0FF" fill-opacity="0.2"/>
+  </g>
+
+  <!-- Glitch bars -->
+  <g opacity="0.18">
+    <rect x="250" y="260" width="980" height="6" fill="#00F0FF"/>
+    <rect x="330" y="476" width="920" height="4" fill="#FF3AF2"/>
+    <rect x="420" y="606" width="760" height="5" fill="#00F0FF"/>
+  </g>
+</svg>

@@ -1,13 +1,9 @@
-# app/game/schemas.py
-
 from pydantic import BaseModel, Field
 from uuid import UUID
 from typing import Optional
 from app.game.models import Archetype
 
 
-# --- Характеристики отдельным блоком ---
-# Выносим в отдельную схему чтобы не дублировать поля
 class Characteristics(BaseModel):
     charisma:     float
     influence:    float
@@ -19,26 +15,25 @@ class Characteristics(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# --- Ответ: полный игровой профиль ---
 class GameProfileResponse(BaseModel):
     id:            UUID
-    archetype:     Optional[Archetype]   # None если ещё не выбрал
+    archetype:     Optional[Archetype]
     level:         int
     xp:            int
-    xp_to_next:    int                   # вычисляется в сервисе
+    xp_to_next:    int
     reputation:    float
     season_points: int
-    stats:         Characteristics       # характеристики вложенным объектом
+    shards:        int
+    energy:        int
+    stats:         Characteristics
 
     model_config = {"from_attributes": True}
 
 
-# --- Выбор архетипа (только один раз) ---
 class ChooseArchetypeDto(BaseModel):
-    archetype: Archetype                 # FOXY или OXY, валидируется автоматически
+    archetype: Archetype
 
 
-# --- UserResponse теперь включает game_profile ---
 class UserWithGameResponse(BaseModel):
     id:           UUID
     email:        str
@@ -46,6 +41,14 @@ class UserWithGameResponse(BaseModel):
     avatar:       Optional[str]
     verified:     bool
     role:         str
-    game_profile: Optional[GameProfileResponse]  # None если профиль ещё не создан
+    game_profile: Optional[GameProfileResponse]
 
     model_config = {"from_attributes": True}
+
+
+class TargetDto(BaseModel):
+    target_id: UUID = Field(..., description="ID цели")
+
+
+class WhisperDto(TargetDto):
+    message: str = Field(..., min_length=1, max_length=500)

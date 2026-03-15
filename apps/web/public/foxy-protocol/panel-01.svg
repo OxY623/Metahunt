@@ -1,0 +1,48 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#060A18"/>
+      <stop offset="0.6" stop-color="#0B0F1A"/>
+      <stop offset="1" stop-color="#1A0B2A"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg1)"/>
+
+  <!-- City -->
+  <path d="M0 690 L0 900 L1600 900 L1600 705 L1490 705 L1490 610 L1400 610 L1400 740 L1280 740 L1280 590 L1180 590 L1180 760 L1010 760 L1010 580 L930 580 L930 780 L780 780 L780 635 L710 635 L710 805 L540 805 L540 610 L470 610 L470 830 L320 830 L320 660 L250 660 L250 850 L120 850 L120 720 Z" fill="#030611"/>
+  <path d="M0 735 L0 900 L1600 900 L1600 755 L1460 755 L1460 660 L1360 660 L1360 780 L1220 780 L1220 620 L1120 620 L1120 820 L980 820 L980 650 L910 650 L910 840 L740 840 L740 680 L660 680 L660 860 L480 860 L480 650 L420 650 L420 880 L260 880 L260 700 L200 700 L200 890 L0 890 Z" fill="#060B16" opacity="0.85"/>
+
+  <!-- Network hologram -->
+  <g filter="url(#glow)" opacity="0.9">
+    <path d="M160 210 C420 110, 620 120, 820 165 C1040 215, 1240 185, 1470 230" fill="none" stroke="#00F0FF" stroke-width="2" stroke-opacity="0.45"/>
+    <path d="M230 320 C520 250, 700 260, 930 315 C1140 365, 1300 360, 1500 310" fill="none" stroke="#FF3AF2" stroke-width="1.6" stroke-opacity="0.28"/>
+    <g>
+      <circle cx="330" cy="205" r="7" fill="#00F0FF" fill-opacity="0.55"/>
+      <circle cx="560" cy="160" r="6" fill="#FF3AF2" fill-opacity="0.45"/>
+      <circle cx="820" cy="175" r="7" fill="#00F0FF" fill-opacity="0.48"/>
+      <circle cx="1090" cy="190" r="6" fill="#FF3AF2" fill-opacity="0.42"/>
+      <circle cx="1330" cy="215" r="7" fill="#00F0FF" fill-opacity="0.46"/>
+    </g>
+  </g>
+
+  <!-- Foxy on roof -->
+  <g transform="translate(1180 510)" filter="url(#glow)">
+    <path d="M40 0 L58 22 L80 6 L74 36 L96 56 L70 56 L62 82 L46 60 L24 72 L30 48 L12 32 L38 30 Z" fill="#FF3AF2" fill-opacity="0.22"/>
+    <path d="M44 8 L56 22 L72 12 L68 34 L82 48 L66 48 L60 64 L48 50 L34 58 L38 42 L26 32 L42 30 Z" fill="#00F0FF" fill-opacity="0.12"/>
+  </g>
+
+  <!-- Subtle scanlines -->
+  <g opacity="0.18">
+    <rect x="0" y="140" width="1600" height="2" fill="#00F0FF"/>
+    <rect x="0" y="310" width="1600" height="2" fill="#FF3AF2"/>
+    <rect x="0" y="490" width="1600" height="2" fill="#00F0FF"/>
+    <rect x="0" y="660" width="1600" height="2" fill="#FF3AF2"/>
+  </g>
+</svg>

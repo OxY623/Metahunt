@@ -1,0 +1,44 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="bg4" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#050816"/>
+      <stop offset="0.5" stop-color="#0B0F1A"/>
+      <stop offset="1" stop-color="#160826"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg4)"/>
+
+  <!-- Holo map -->
+  <g filter="url(#glow)" opacity="0.9">
+    <circle cx="800" cy="420" r="220" fill="none" stroke="#00F0FF" stroke-opacity="0.35" stroke-width="2"/>
+    <circle cx="800" cy="420" r="140" fill="none" stroke="#FF3AF2" stroke-opacity="0.25" stroke-width="2"/>
+    <path d="M610 320 L990 520" stroke="#00F0FF" stroke-opacity="0.35" stroke-width="2"/>
+    <path d="M1010 330 L620 510" stroke="#FF3AF2" stroke-opacity="0.28" stroke-width="2"/>
+  </g>
+
+  <!-- Core fracture -->
+  <g filter="url(#glow)">
+    <path d="M800 300 L780 360 L820 410 L770 470 L840 520 L790 560" fill="none" stroke="#00F0FF" stroke-width="4" stroke-opacity="0.65"/>
+    <path d="M820 310 L840 370 L800 420 L860 470 L790 520 L830 560" fill="none" stroke="#FF3AF2" stroke-width="3" stroke-opacity="0.45"/>
+  </g>
+
+  <!-- Shards -->
+  <g opacity="0.8" filter="url(#glow)">
+    <polygon points="520,240 560,270 530,310" fill="#00F0FF" fill-opacity="0.25"/>
+    <polygon points="1040,250 1090,280 1060,330" fill="#FF3AF2" fill-opacity="0.2"/>
+    <polygon points="610,610 660,640 620,690" fill="#FF3AF2" fill-opacity="0.18"/>
+    <polygon points="980,610 1030,645 990,690" fill="#00F0FF" fill-opacity="0.22"/>
+  </g>
+
+  <!-- Label -->
+  <g font-family="JetBrains Mono, monospace" font-size="36" filter="url(#glow)">
+    <text x="560" y="770" fill="#FF3AF2" fill-opacity="0.85">NETWORK FRACTURE</text>
+  </g>
+</svg>

@@ -1,0 +1,77 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#050816"/>
+      <stop offset="0.55" stop-color="#0B0F1A"/>
+      <stop offset="1" stop-color="#120A1F"/>
+    </linearGradient>
+    <linearGradient id="neon" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#00F0FF" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#FF3AF2" stop-opacity="0.9"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+
+  <!-- City silhouette -->
+  <g opacity="0.95">
+    <path d="M0 680 L0 900 L1600 900 L1600 700 L1500 700 L1500 610 L1420 610 L1420 740 L1320 740 L1320 580 L1240 580 L1240 720 L1120 720 L1120 560 L1040 560 L1040 740 L920 740 L920 600 L850 600 L850 760 L720 760 L720 620 L640 620 L640 740 L520 740 L520 590 L450 590 L450 770 L330 770 L330 640 L260 640 L260 780 L120 780 L120 700 Z" fill="#02040c"/>
+    <path d="M0 705 L0 900 L1600 900 L1600 735 L1450 735 L1450 640 L1380 640 L1380 770 L1245 770 L1245 610 L1160 610 L1160 800 L1010 800 L1010 640 L950 640 L950 820 L760 820 L760 665 L690 665 L690 840 L520 840 L520 645 L470 645 L470 855 L310 855 L310 690 L240 690 L240 870 L0 870 Z" fill="#050a16" opacity="0.9"/>
+  </g>
+
+  <!-- Windows -->
+  <g opacity="0.55">
+    <g fill="#00F0FF" filter="url(#glow)" opacity="0.25">
+      <rect x="116" y="740" width="8" height="10"/>
+      <rect x="140" y="748" width="6" height="8"/>
+      <rect x="520" y="780" width="7" height="9"/>
+      <rect x="548" y="792" width="6" height="8"/>
+      <rect x="1016" y="742" width="8" height="10"/>
+      <rect x="1042" y="752" width="6" height="8"/>
+      <rect x="1428" y="702" width="7" height="9"/>
+    </g>
+    <g fill="#FF3AF2" filter="url(#glow)" opacity="0.18">
+      <rect x="330" y="792" width="7" height="9"/>
+      <rect x="360" y="804" width="6" height="8"/>
+      <rect x="860" y="720" width="8" height="10"/>
+      <rect x="888" y="734" width="6" height="8"/>
+      <rect x="1248" y="744" width="7" height="9"/>
+    </g>
+  </g>
+
+  <!-- Holographic network map -->
+  <g opacity="0.9" filter="url(#glow)">
+    <path d="M180 220 C380 140, 560 110, 760 150 C940 185, 1140 170, 1400 220" fill="none" stroke="url(#neon)" stroke-width="2" stroke-opacity="0.55"/>
+    <path d="M260 300 C520 250, 700 245, 920 290 C1120 330, 1280 320, 1450 290" fill="none" stroke="#00F0FF" stroke-width="1.6" stroke-opacity="0.35"/>
+    <path d="M210 370 C460 340, 700 350, 980 390 C1180 420, 1320 420, 1510 380" fill="none" stroke="#FF3AF2" stroke-width="1.4" stroke-opacity="0.25"/>
+    <g>
+      <circle cx="340" cy="205" r="6" fill="#00F0FF" fill-opacity="0.55"/>
+      <circle cx="560" cy="165" r="5" fill="#FF3AF2" fill-opacity="0.5"/>
+      <circle cx="820" cy="175" r="6" fill="#00F0FF" fill-opacity="0.5"/>
+      <circle cx="1080" cy="180" r="5" fill="#FF3AF2" fill-opacity="0.45"/>
+      <circle cx="1320" cy="215" r="6" fill="#00F0FF" fill-opacity="0.48"/>
+    </g>
+  </g>
+
+  <!-- Foxy silhouette (minimal) -->
+  <g transform="translate(260 560)" filter="url(#glow)">
+    <path d="M110 0 L150 60 L200 15 L190 100 L240 140 L180 145 L160 210 L120 150 L70 190 L80 120 L30 80 L90 70 Z" fill="#FF3AF2" fill-opacity="0.14"/>
+    <path d="M112 16 L142 58 L186 28 L178 92 L216 124 L170 126 L156 180 L124 136 L86 162 L92 112 L56 84 L106 76 Z" fill="#00F0FF" fill-opacity="0.08"/>
+    <path d="M115 22 L140 56 L182 34 L176 88 L206 116 L168 118 L156 162 L128 130 L96 150 L100 112 L74 90 L112 84 Z" fill="#FF3AF2" fill-opacity="0.22"/>
+  </g>
+
+  <!-- Glitch scanlines -->
+  <g opacity="0.22">
+    <rect x="0" y="120" width="1600" height="2" fill="#00F0FF"/>
+    <rect x="0" y="292" width="1600" height="2" fill="#FF3AF2"/>
+    <rect x="0" y="468" width="1600" height="2" fill="#00F0FF"/>
+    <rect x="0" y="642" width="1600" height="2" fill="#FF3AF2"/>
+  </g>
+</svg>

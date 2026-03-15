@@ -171,3 +171,27 @@ a {
 .glitch-hover:hover {
   animation: glitch 0.15s linear 2;
 }
+/* === FOXY / INTRO === */
+@keyframes terminalFlicker {
+  0%, 100% { opacity: 0.92; filter: saturate(1); }
+  50% { opacity: 1; filter: saturate(1.2); }
+  52% { opacity: 0.75; }
+  54% { opacity: 1; }
+  70% { opacity: 0.9; }
+}
+
+.terminal-flicker {
+  animation: terminalFlicker 2.6s linear infinite;
+}
+
+@keyframes glitchyText {
+  0% { text-shadow: 0 0 0 rgba(0,240,255,0), 0 0 0 rgba(255,58,242,0); }
+  20% { text-shadow: -1px 0 rgba(0,240,255,0.45), 1px 0 rgba(255,58,242,0.35); }
+  40% { text-shadow: 1px 0 rgba(0,240,255,0.25), -1px 0 rgba(255,58,242,0.25); }
+  60% { text-shadow: -2px 0 rgba(0,240,255,0.35), 2px 0 rgba(255,58,242,0.25); }
+  100% { text-shadow: 0 0 0 rgba(0,240,255,0), 0 0 0 rgba(255,58,242,0); }
+}
+
+.glitchy {
+  animation: glitchyText 2.8s steps(10, end) infinite;
+}

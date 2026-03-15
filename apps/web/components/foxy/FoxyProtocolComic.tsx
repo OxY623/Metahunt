@@ -1,0 +1,126 @@
+﻿"use client";
+
+import Image from "next/image";
+import { useMemo, useState } from "react";
+import { FOXY_PROTOCOL_PANELS, type FoxyProtocolPanel } from "./foxyProtocolPanels";
+
+type Props = {
+  onComplete: () => void;
+  className?: string;
+};
+
+export default function FoxyProtocolComic({ onComplete, className }: Props) {
+  const panels = useMemo(() => FOXY_PROTOCOL_PANELS, []);
+  const [index, setIndex] = useState(0);
+
+  const panel: FoxyProtocolPanel = panels[index]!;
+  const isFirst = index === 0;
+  const isLast = index === panels.length - 1;
+
+  const goPrev = () => setIndex((i) => Math.max(0, i - 1));
+  const goNext = () => setIndex((i) => Math.min(panels.length - 1, i + 1));
+
+  return (
+    <div className={["w-full max-w-4xl", className ?? ""].join(" ")}>
+      <div className="cyber-card border border-meta-border rounded-xl overflow-hidden">
+        <div className="relative aspect-[16/9] overflow-hidden">
+          <Image
+            src={panel.imageSrc}
+            alt={panel.imageAlt}
+            fill
+            priority
+            className="object-cover opacity-95"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-meta-bg/85 via-meta-bg/10 to-transparent" />
+          <div className="absolute left-4 right-4 bottom-4">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <div className="font-display text-xl tracking-[0.2em] neon-text-cyan uppercase">
+                  {panel.title}
+                </div>
+                {panel.subtitle && (
+                  <div className="text-[11px] tracking-[0.24em] uppercase text-text-muted mt-1">
+                    {panel.subtitle}
+                  </div>
+                )}
+              </div>
+              <div className="text-[11px] tracking-[0.2em] uppercase text-text-dim">
+                {index + 1}/{panels.length}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-5 grid gap-4">
+          {panel.quote && (
+            <div className="text-sm text-text-primary whitespace-pre-line">
+              <span className="text-brand-pink">Foxy:</span>{" "}
+              <span className="glitchy">{panel.quote}</span>
+            </div>
+          )}
+
+          {panel.code?.length ? (
+            <div className="border border-meta-border rounded-lg bg-meta-bg/50 p-4 text-[12px] leading-6">
+              {panel.code.map((l) => (
+                <div key={`${l}-${index}`} className="text-brand-cyan terminal-flicker">
+                  {l}
+                </div>
+              ))}
+            </div>
+          ) : null}
+
+          <div className="flex items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={goPrev}
+              disabled={isFirst}
+              className={[
+                "cyber-btn px-4 py-2 text-sm rounded border",
+                isFirst
+                  ? "border-meta-border text-text-dim opacity-50 cursor-not-allowed"
+                  : "border-brand-cyan/40 text-brand-cyan hover:bg-brand-cyan/10",
+              ].join(" ")}
+            >
+              BACK
+            </button>
+
+            <div className="flex items-center gap-2">
+              {panels.map((p, i) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => setIndex(i)}
+                  className={[
+                    "h-2 w-2 rounded-full border",
+                    i === index
+                      ? "bg-brand-pink border-brand-pink shadow-[0_0_10px_rgba(255,58,242,0.55)]"
+                      : "border-meta-border hover:border-brand-cyan/60",
+                  ].join(" ")}
+                  aria-label={`Panel ${i + 1}`}
+                />
+              ))}
+            </div>
+
+            {!isLast ? (
+              <button
+                type="button"
+                onClick={goNext}
+                className="cyber-btn glitch-hover px-4 py-2 text-sm rounded border border-brand-pink/50 text-brand-pink hover:bg-brand-pink/10"
+              >
+                NEXT
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={onComplete}
+                className="cyber-btn glitch-hover px-4 py-2 text-sm rounded border border-brand-cyan/60 text-brand-cyan hover:bg-brand-cyan/10"
+              >
+                ENTER THE HUNT
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
