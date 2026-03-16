@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import type { MessageResponse } from "../lib/api";
 
@@ -20,6 +20,8 @@ export function ChatMessage({ message, isOwn }: ChatMessageProps) {
     ? "???"
     : message.sender_nickname ?? "Аноним";
 
+  const effect = message.effect ? ` • ${message.effect}` : "";
+
   return (
     <div
       className={`flex flex-col gap-0.5 max-w-[85%] ${
@@ -34,7 +36,9 @@ export function ChatMessage({ message, isOwn }: ChatMessageProps) {
         >
           {displayName}
         </span>
-        <span className="text-text-dim text-xs">{formatTime(message.created_at)}</span>
+        <span className="text-text-dim text-xs">
+          {formatTime(message.created_at)}{effect}
+        </span>
       </div>
       <div
         className={`

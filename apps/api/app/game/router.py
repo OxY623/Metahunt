@@ -10,6 +10,7 @@ from app.users.models import User
 from app.game.service import GameService
 from app.game.schemas import GameProfileResponse, ChooseArchetypeDto, TargetDto, WhisperDto
 from app.game.models import Archetype
+from app.chat.effects import set_effect
 
 router = APIRouter(prefix="/game", tags=["Game"])
 
@@ -70,6 +71,7 @@ async def skill_glitch(
     if profile.archetype != Archetype.FOXY:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Только Лиса может глючить экраны")
     await service.spend_shards(profile, 15)
+    set_effect(dto.target_id, "glitch", 30)
     await service.session.commit()
     return {"msg": "Экран Волка заглючен на 30 секунд.", "shards_spent": 15}
 
@@ -115,6 +117,7 @@ async def skill_ban(
     await service.spend_shards(profile, 30)
     target = await service.get_or_create_profile(dto.target_id)
     target.energy = max(0, target.energy - 10)
+    set_effect(dto.target_id, "ban", 60)
     await service.session.commit()
     return {"msg": "Порт цели временно заблокирован (−10 энергии).", "shards_spent": 30}
 

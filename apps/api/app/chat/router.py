@@ -7,6 +7,7 @@ from app.database import get_session
 from app.auth.dependencies import get_current_user
 from app.users.models import User
 from app.chat.service import ChatService
+from app.chat.effects import is_active, get_effects_payload
 from app.chat.schemas import MessageCreate, MessageResponse
 from app.game.service import GameService
 
@@ -42,7 +43,18 @@ async def send_message(
     game: GameService = Depends(get_game_service),
 ):
     profile = await game.get_or_create_profile(current_user.id)
+    if is_active(current_user.id, "ban"):
+        raise HTTPException(status_code=403, detail="Порт заблокирован на 1 минуту")
     await game.spend_energy(profile, 1)
     msg = await chat.send_message(current_user, dto, is_anonymous=False)
     await chat.session.commit()
-    return chat.to_response(msg)
+    res = chat.to_response(msg)
+    res.effect_payload = str(get_effects_payload(current_user.id))
+    return res
+
+
+@router.get("/effects")
+async def get_effects(
+    current_user: User = Depends(get_current_user),
+):
+    return {"effects": get_effects_payload(current_user.id)}

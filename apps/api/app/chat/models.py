@@ -1,8 +1,8 @@
-# app/chat/models.py
+﻿# app/chat/models.py
 # Сообщения чата: отправитель, комната, текст, время (docs: models.md)
 
 import uuid
-from sqlalchemy import Column, String, DateTime, ForeignKey, Text, Boolean
+from sqlalchemy import Column, String, DateTime, ForeignKey, Text, Boolean, Integer
 from sqlalchemy.sql import func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -23,6 +23,10 @@ class Message(Base):
     text = Column(Text, nullable=False)
     # is_anonymous — True для Whisper (Сова), отправитель скрыт
     is_anonymous = Column(Boolean, default=False, nullable=False)
+    # effect - optional chat ability tag (glitch, whisper, ban, etc.)
+    effect = Column(String(32), nullable=True, index=True)
+    # effect_payload - small JSON-like text payload for client
+    effect_payload = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     sender = relationship("User", backref="messages")

@@ -1,4 +1,4 @@
-# app/chat/schemas.py
+﻿# app/chat/schemas.py
 
 from pydantic import BaseModel, Field
 from uuid import UUID
@@ -18,6 +18,8 @@ class MessageResponse(BaseModel):
     room: str
     text: str
     is_anonymous: bool
+    effect: str | None = None
+    effect_payload: str | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}

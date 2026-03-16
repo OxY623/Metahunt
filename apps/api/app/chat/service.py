@@ -26,12 +26,14 @@ class ChatService:
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
-    async def send_message(self, sender: User, dto: MessageCreate, is_anonymous: bool = False) -> Message:
+    async def send_message(self, sender: User, dto: MessageCreate, is_anonymous: bool = False, effect: str | None = None, effect_payload: str | None = None) -> Message:
         msg = Message(
             sender_id=sender.id,
             room=dto.room,
             text=dto.text.strip(),
             is_anonymous=is_anonymous,
+            effect=effect,
+            effect_payload=effect_payload,
         )
         self.session.add(msg)
         await self.session.flush()
@@ -48,5 +50,7 @@ class ChatService:
             room=msg.room,
             text=msg.text,
             is_anonymous=msg.is_anonymous,
+            effect=msg.effect,
+            effect_payload=msg.effect_payload,
             created_at=msg.created_at,
         )

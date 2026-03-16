@@ -46,6 +46,7 @@ export default function HomePage() {
   const [user, setUser] = useState<UserResponse | null>(null);
   const [gameProfile, setGameProfile] = useState<GameProfileResponse | null>(null);
   const [view, setView] = useState<View>("landing");
+  const [authPanel, setAuthPanel] = useState<"login" | "register" | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [actionTarget, setActionTarget] = useState("");
@@ -397,6 +398,11 @@ export default function HomePage() {
         {view === "landing" && (
           <section className="flex flex-col items-center text-center py-16">
             <FoxyProtocolHero className="mb-10" />
+            <div className="w-full max-w-sm mb-6">
+              <div className="cyber-card cyber-border rounded-lg h-28 flex items-center justify-center text-text-dim text-xs uppercase tracking-[0.35em]">
+                <Image src="/hero-2.png" alt="logo Metahunt" width={120} height={70}/>
+              </div>
+            </div>
             <h1 className="font-display text-3xl mt-2 tracking-[0.2em] neon-text-cyan">
               ВХОД В СИСТЕМУ
             </h1>
@@ -405,87 +411,108 @@ export default function HomePage() {
             </p>
 
             <div className="w-full max-w-sm cyber-card cyber-border rounded-lg p-6">
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div>
-                  <label className="block text-xs text-text-muted mb-1 uppercase tracking-wider">
-                    EMAIL
-                  </label>
-                  <input
-                    name="email"
-                    type="email"
-                    required
-                    className="cyber-input w-full px-4 py-3 rounded"
-                    placeholder="user@domain.net"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-text-muted mb-1 uppercase tracking-wider">
-                    ПАРОЛЬ
-                  </label>
-                  <input
-                    name="password"
-                    type="password"
-                    required
-                    className="cyber-input w-full px-4 py-3 rounded"
-                    placeholder="••••••••"
-                  />
-                </div>
+              <div className="flex flex-col gap-3">
                 <button
-                  type="submit"
-                  disabled={loading}
+                  type="button"
+                  onClick={() => setAuthPanel(authPanel === "login" ? null : "login")}
                   className="cyber-btn glitch-hover w-full py-3 bg-brand-cyan/20 text-brand-cyan cyber-border rounded hover:bg-brand-cyan/30"
                 >
-                  {loading ? "..." : "ВОЙТИ"}
+                  ВОЙТИ
                 </button>
-              </form>
-              <p className="text-text-dim text-xs mt-4 text-center">или</p>
-              <form onSubmit={handleRegister} className="space-y-4 mt-4">
-                <div>
-                  <label className="block text-xs text-text-muted mb-1 uppercase tracking-wider">
-                    NICKNAME
-                  </label>
-                  <input
-                    name="nickname"
-                    type="text"
-                    required
-                    minLength={3}
-                    className="cyber-input w-full px-4 py-3 rounded"
-                    placeholder="hunter_01"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-text-muted mb-1 uppercase tracking-wider">
-                    EMAIL
-                  </label>
-                  <input
-                    name="reg_email"
-                    type="email"
-                    required
-                    className="cyber-input w-full px-4 py-3 rounded"
-                    placeholder="user@domain.net"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-text-muted mb-1 uppercase tracking-wider">
-                    ПАРОЛЬ (мин. 8)
-                  </label>
-                  <input
-                    name="reg_password"
-                    type="password"
-                    required
-                    minLength={8}
-                    className="cyber-input w-full px-4 py-3 rounded"
-                    placeholder="••••••••"
-                  />
-                </div>
                 <button
-                  type="submit"
-                  disabled={loading}
+                  type="button"
+                  onClick={() => setAuthPanel(authPanel === "register" ? null : "register")}
                   className="cyber-btn glitch-hover w-full py-3 bg-brand-pink/20 text-brand-pink border border-brand-pink/50 rounded hover:bg-brand-pink/30"
                 >
-                  {loading ? "..." : "РЕГИСТРАЦИЯ"}
+                  РЕГИСТРАЦИЯ
                 </button>
-              </form>
+              </div>
+
+              {authPanel === "login" && (
+                <form onSubmit={handleLogin} className="space-y-4 mt-6 text-left">
+                  <div>
+                    <label className="block text-xs text-text-muted mb-1 uppercase tracking-wider">
+                      EMAIL
+                    </label>
+                    <input
+                      name="email"
+                      type="email"
+                      required
+                      className="cyber-input w-full px-4 py-3 rounded"
+                      placeholder="user@domain.net"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-text-muted mb-1 uppercase tracking-wider">
+                      ПАРОЛЬ
+                    </label>
+                    <input
+                      name="password"
+                      type="password"
+                      required
+                      className="cyber-input w-full px-4 py-3 rounded"
+                      placeholder="••••••••"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="cyber-btn w-full py-3 bg-brand-cyan/20 text-brand-cyan cyber-border rounded hover:bg-brand-cyan/30"
+                  >
+                    {loading ? "..." : "ПОДТВЕРДИТЬ ВХОД"}
+                  </button>
+                </form>
+              )}
+
+              {authPanel === "register" && (
+                <form onSubmit={handleRegister} className="space-y-4 mt-6 text-left">
+                  <div>
+                    <label className="block text-xs text-text-muted mb-1 uppercase tracking-wider">
+                      NICKNAME
+                    </label>
+                    <input
+                      name="nickname"
+                      type="text"
+                      required
+                      minLength={3}
+                      className="cyber-input w-full px-4 py-3 rounded"
+                      placeholder="hunter_01"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-text-muted mb-1 uppercase tracking-wider">
+                      EMAIL
+                    </label>
+                    <input
+                      name="reg_email"
+                      type="email"
+                      required
+                      className="cyber-input w-full px-4 py-3 rounded"
+                      placeholder="user@domain.net"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-text-muted mb-1 uppercase tracking-wider">
+                      ПАРОЛЬ (мин. 8)
+                    </label>
+                    <input
+                      name="reg_password"
+                      type="password"
+                      required
+                      minLength={8}
+                      className="cyber-input w-full px-4 py-3 rounded"
+                      placeholder="••••••••"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="cyber-btn w-full py-3 bg-brand-pink/20 text-brand-pink border border-brand-pink/50 rounded hover:bg-brand-pink/30"
+                  >
+                    {loading ? "..." : "СОЗДАТЬ АККАУНТ"}
+                  </button>
+                </form>
+              )}
             </div>
             <button
               onClick={() => window.open(`${API_URL}/api/docs`, "_blank")}

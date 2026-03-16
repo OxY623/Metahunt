@@ -12,9 +12,9 @@ def should_skip(path: Path) -> bool:
 
 
 PATTERNS = [
-    # Typical UTF-8 bytes decoded as Windows-1251: "РџРђ..."
+    # Typical UTF-8 bytes decoded as Windows-1251 (Cyrillic mojibake)
     re.compile(r"(?:[\u0420\u0421][\u0400-\u04FF]){2,}"),
-    # Typical UTF-8 bytes decoded as Windows-1251: "вЂў", "вЂ”", "в†’"
+    # Typical UTF-8 bytes decoded as Windows-1251 (bullet/dash mojibake)
     re.compile(r"\u0432[\u0402\u2020][\u0400-\u04FF\u2019\u201D\u00A9]{1,}"),
     # "В©" -> "©"
     re.compile(r"\u0412\u00A9"),
