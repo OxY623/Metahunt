@@ -1,7 +1,7 @@
-import clsx from 'clsx';
-import Link from '@docusaurus/Link';
-import MetaHuntLogo from '../MetaHuntLogo/MetaHuntLogo';
-import styles from './Hero.module.css';
+import clsx from "clsx";
+import Link from "@docusaurus/Link";
+import MetaHuntLogo from "../MetaHuntLogo/MetaHuntLogo";
+import styles from "./Hero.module.css";
 
 export default function Hero() {
   return (
@@ -15,7 +15,7 @@ export default function Hero() {
           <MetaHuntLogo />
           <h1 className={styles.title}>MetaHunt</h1>
           <p className={styles.subtitle}>
-            Асинхронная MMO для хакеров, тактиков и адептов теневых сетей. Твое 
+            Асинхронная MMO для хакеров, тактиков и адептов теневых сетей. Твое
             погружение в мир киберпанка и тайных орденов.
           </p>
           <div className={styles.actions}>
@@ -23,7 +23,10 @@ export default function Hero() {
               Читать Prolog
             </Link>
             <Link
-              className={clsx('button button--primary button--lg', styles.primary)}
+              className={clsx(
+                "button button--primary button--lg",
+                styles.primary,
+              )}
               to="/docs/concept/overview"
             >
               О концепте

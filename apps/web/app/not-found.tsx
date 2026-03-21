@@ -1,4 +1,5 @@
 ﻿import Link from "next/link";
+import { Button } from "../shared/ui/Button";
 
 export default function NotFoundPage() {
   return (
@@ -23,23 +24,25 @@ export default function NotFoundPage() {
 
               <div className="mt-8 border border-meta-border rounded-lg bg-meta-bg/50 p-4 text-left text-[12px] leading-6">
                 <div className="text-text-dim">$ route.resolve()</div>
-                <div className="text-brand-pink terminal-flicker">NOT_FOUND</div>
+                <div className="text-brand-pink terminal-flicker">
+                  NOT_FOUND
+                </div>
                 <div className="text-text-dim">$ hint</div>
-                <div className="text-brand-cyan terminal-flicker">TRUST = FALSE</div>
+                <div className="text-brand-cyan terminal-flicker">
+                  TRUST = FALSE
+                </div>
               </div>
 
               <div className="mt-8 flex items-center justify-center gap-3">
-                <Link
-                  href="/"
-                  className="cyber-btn glitch-hover px-4 py-2 text-sm rounded border border-brand-cyan/60 text-brand-cyan hover:bg-brand-cyan/10"
-                >
-                  GO HOME
+                <Link href="/">
+                  <Button variant="cyan" size="sm">
+                    Go Home
+                  </Button>
                 </Link>
-                <Link
-                  href="/chat"
-                  className="cyber-btn px-4 py-2 text-sm rounded border border-meta-border text-text-muted hover:text-brand-cyan hover:border-brand-cyan/40"
-                >
-                  OPEN CHAT
+                <Link href="/chat">
+                  <Button variant="neutral" size="sm">
+                    Open Chat
+                  </Button>
                 </Link>
               </div>
             </div>

@@ -1,5 +1,5 @@
-﻿import CyberLoading from "../components/CyberLoading";
+﻿import LoadingScreen from "../shared/ui/LoadingScreen";
 
 export default function Loading() {
-  return <CyberLoading />;
+  return <LoadingScreen />;
 }

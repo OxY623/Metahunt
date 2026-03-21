@@ -23,14 +23,14 @@ ReDoc: [http://localhost:8000/api/redoc](http://localhost:8000/api/redoc)
 
 ## Эндпоинты — карта
 
-| Метод | Путь | Описание | Авторизация |
-|-------|------|----------|-------------|
-| GET | `/health` | Health check | ❌ |
-| GET | `/api/v1/users/me` | Мой профиль | ✅ Bearer |
-| PATCH | `/api/v1/users/profile` | Обновить профиль | ✅ Bearer |
-| PATCH | `/api/v1/users/password` | Сменить пароль | ✅ Bearer |
-| GET | `/api/v1/game/profile` | Игровой профиль | ✅ Bearer |
-| POST | `/api/v1/game/archetype` | Выбрать архетип (FOXY/OXY) | ✅ Bearer |
+| Метод | Путь                     | Описание                   | Авторизация |
+| ----- | ------------------------ | -------------------------- | ----------- |
+| GET   | `/health`                | Health check               | ❌          |
+| GET   | `/api/v1/users/me`       | Мой профиль                | ✅ Bearer   |
+| PATCH | `/api/v1/users/profile`  | Обновить профиль           | ✅ Bearer   |
+| PATCH | `/api/v1/users/password` | Сменить пароль             | ✅ Bearer   |
+| GET   | `/api/v1/game/profile`   | Игровой профиль            | ✅ Bearer   |
+| POST  | `/api/v1/game/archetype` | Выбрать архетип (FOXY/OXY) | ✅ Bearer   |
 
 ---
 

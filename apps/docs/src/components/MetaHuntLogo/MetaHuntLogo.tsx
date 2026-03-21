@@ -51,8 +51,22 @@ export default function MetaHuntLogo() {
             fill="none"
             className="animate-pulse"
           />
-          <line x1="100" y1="70" x2="100" y2="120" stroke="#8B5CF6" strokeWidth="2" />
-          <line x1="75" y1="95" x2="125" y2="95" stroke="#8B5CF6" strokeWidth="2" />
+          <line
+            x1="100"
+            y1="70"
+            x2="100"
+            y2="120"
+            stroke="#8B5CF6"
+            strokeWidth="2"
+          />
+          <line
+            x1="75"
+            y1="95"
+            x2="125"
+            y2="95"
+            stroke="#8B5CF6"
+            strokeWidth="2"
+          />
         </g>
       </svg>
 

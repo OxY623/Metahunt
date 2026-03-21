@@ -1,50 +1,6 @@
 # Website
 
 This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
-docs/
- ├ intro.md
- ├ architecture/
- │    system-design.md
- │    db-schema.md
- │    api.md
- ├ frontend/
- │    routing.md
- │    ui-system.md
- ├ backend/
- │    auth-flow.md
- │    payments.md
- │    tickets.md
- ├ devops/
- │    deploy.md
- │    env.md
- └ product/
-      roadmap.md
-      user-stories.md
-
-01-product/
-   vision.md
-   roadmap.md
-   user-stories.md
-
-02-architecture/
-   system-design.md
-   db-schema.md
-   api-structure.md
-
-03-backend/
-   modules.md
-   auth-flow.md
-   payments.md
-
-04-frontend/
-   ui-system.md
-   routing.md
-   state-management.md
-
-05-devops/
-   deploy.md
-   ci-cd.md
-   env-vars.md
 
 ## Installation
 

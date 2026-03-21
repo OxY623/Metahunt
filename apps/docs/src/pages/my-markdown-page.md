@@ -12,19 +12,19 @@
 
 ## Бизнес-цели
 
-* Упростить вход новых игроков
-* Централизовать управление аккаунтом
-* Монетизация через платежи
-* Повысить доверие (безопасность + стабильность)
-* Создать масштабируемую платформу
+- Упростить вход новых игроков
+- Централизовать управление аккаунтом
+- Монетизация через платежи
+- Повысить доверие (безопасность + стабильность)
+- Создать масштабируемую платформу
 
 ## Пользовательские цели
 
-* Быстро начать играть
-* Управлять аккаунтом
-* Пополнять баланс
-* Получать поддержку
-* Следить за новостями сервера
+- Быстро начать играть
+- Управлять аккаунтом
+- Пополнять баланс
+- Получать поддержку
+- Следить за новостями сервера
 
 ---
 
@@ -48,20 +48,20 @@ Payment Provider (webhooks)
 
 ## Frontend (приоритет)
 
-* React
-* Next.js (App Router)
-* TypeScript
-* Tailwind / shadcn UI
-* React Query / RTK Query
-* Axios / Fetch API
+- React
+- Next.js (App Router)
+- TypeScript
+- Tailwind / shadcn UI
+- React Query / RTK Query
+- Axios / Fetch API
 
 ### Причины выбора Next.js
 
-* SSR → SEO для лендинга
-* API routes при необходимости
-* оптимизация загрузки
-* image optimization
-* middleware для auth
+- SSR → SEO для лендинга
+- API routes при необходимости
+- оптимизация загрузки
+- image optimization
+- middleware для auth
 
 ---
 
@@ -71,11 +71,11 @@ Payment Provider (webhooks)
 
 Почему:
 
-* модульная архитектура
-* guards (auth)
-* interceptors
-* validation pipes
-* enterprise-ready
+- модульная архитектура
+- guards (auth)
+- interceptors
+- validation pipes
+- enterprise-ready
 
 ---
 
@@ -85,14 +85,14 @@ Payment Provider (webhooks)
 
 Причины:
 
-* транзакции
-* JSONB
-* надежность
-* масштабируемость
+- транзакции
+- JSONB
+- надежность
+- масштабируемость
 
 ORM:
 
-* Prisma (приоритет)
+- Prisma (приоритет)
 
 ---
 
@@ -147,30 +147,28 @@ admin
 
 ### Header
 
-* логотип
-* меню:
+- логотип
+- меню:
+  - Новости
+  - Ивенты
+  - Дорожная карта
+  - Магазин
+  - Поддержка
 
-  * Новости
-  * Ивенты
-  * Дорожная карта
-  * Магазин
-  * Поддержка
-* CTA:
-
-  * Регистрация
-  * Скачать
+- CTA:
+  - Регистрация
+  - Скачать
 
 ---
 
 ### Hero Screen
 
-* fullscreen арт / видео
-* название сервера
-* слоган
-* кнопки:
-
-  * Начать играть
-  * Скачать клиент
+- fullscreen арт / видео
+- название сервера
+- слоган
+- кнопки:
+  - Начать играть
+  - Скачать клиент
 
 ---
 
@@ -190,34 +188,34 @@ admin
 
 Карточки:
 
-* патчи
-* ивенты
-* roadmap (2 месяца)
+- патчи
+- ивенты
+- roadmap (2 месяца)
 
 ---
 
 ### О сервере
 
-* рейты
-* уникальные механики
-* PvP/PvE особенности
+- рейты
+- уникальные механики
+- PvP/PvE особенности
 
 ---
 
 ### Сообщество
 
-* Discord
-* Telegram
-* YouTube
-* VK
+- Discord
+- Telegram
+- YouTube
+- VK
 
 ---
 
 ### Footer
 
-* правила
-* контакты
-* copyright
+- правила
+- контакты
+- copyright
 
 ---
 
@@ -240,53 +238,53 @@ Sidebar
 
 ## Профиль
 
-* ник
-* email
-* аватар
-* смена пароля
+- ник
+- email
+- аватар
+- смена пароля
 
 ---
 
 ## Баланс
 
-* текущий баланс
-* кнопка пополнить
-* выбор суммы
-* история операций
+- текущий баланс
+- кнопка пополнить
+- выбор суммы
+- история операций
 
 ---
 
 ## История покупок
 
-* дата
-* товар
-* сумма
-* статус
+- дата
+- товар
+- сумма
+- статус
 
 ---
 
 ## Промокоды
 
-* ввод кода
-* результат
-* история активаций
+- ввод кода
+- результат
+- история активаций
 
 ---
 
 ## Поддержка
 
-* создать тикет
-* статус
-* переписка
+- создать тикет
+- статус
+- переписка
 
 ---
 
 ## Активность
 
-* входы
-* IP
-* устройство
-* дата
+- входы
+- IP
+- устройство
+- дата
 
 ---
 
@@ -294,18 +292,18 @@ Sidebar
 
 ## Auth
 
-* JWT access token
-* refresh token (httpOnly cookie)
+- JWT access token
+- refresh token (httpOnly cookie)
 
 ---
 
 ## Защита
 
-* bcrypt hashing
-* rate limit
-* CSRF protection
-* email verification
-* audit logs
+- bcrypt hashing
+- rate limit
+- CSRF protection
+- email verification
+- audit logs
 
 ---
 
@@ -400,44 +398,44 @@ GET /activity
 
 ### users
 
-* id
-* email
-* password_hash
-* nickname
-* avatar
-* verified
-* created_at
+- id
+- email
+- password_hash
+- nickname
+- avatar
+- verified
+- created_at
 
 ### balances
 
-* user_id
-* amount
+- user_id
+- amount
 
 ### transactions
 
-* id
-* type
-* amount
-* status
+- id
+- type
+- amount
+- status
 
 ### promo_codes
 
-* code
-* reward
-* expires_at
+- code
+- reward
+- expires_at
 
 ### tickets
 
-* id
-* status
-* user_id
+- id
+- status
+- user_id
 
 ### activity_logs
 
-* user_id
-* ip
-* device
-* timestamp
+- user_id
+- ip
+- device
+- timestamp
 
 ---
 
@@ -445,13 +443,13 @@ GET /activity
 
 ## Frontend
 
-* Vercel / Docker
+- Vercel / Docker
 
 ## Backend
 
-* VPS + Docker
-* Nginx
-* HTTPS (Let's Encrypt)
+- VPS + Docker
+- Nginx
+- HTTPS (Let's Encrypt)
 
 ---
 
@@ -465,8 +463,8 @@ push → tests → build → deploy
 
 # 10. 📖 API Documentation
 
-* Swagger `/api/docs`
-* OpenAPI schema
+- Swagger `/api/docs`
+- OpenAPI schema
 
 ---
 
@@ -483,9 +481,9 @@ push → tests → build → deploy
 
 **Acceptance**
 
-* hero экран
-* описание сервера
-* кнопка начать игру
+- hero экран
+- описание сервера
+- кнопка начать игру
 
 ---
 
@@ -498,9 +496,9 @@ push → tests → build → deploy
 
 **Acceptance**
 
-* email verification
-* ошибки валидации
-* success screen
+- email verification
+- ошибки валидации
+- success screen
 
 ---
 
@@ -566,35 +564,33 @@ push → tests → build → deploy
 
 ### Phase 1 — Foundation
 
-* Auth
-* Landing
-* DB schema
+- Auth
+- Landing
+- DB schema
 
 ### Phase 2 — Cabinet
 
-* Profile
-* Balance
-* Payments
+- Profile
+- Balance
+- Payments
 
 ### Phase 3 — Social
 
-* Tickets
-* Activity logs
+- Tickets
+- Activity logs
 
 ### Phase 4 — Growth
 
-* Admin panel
-* Characters
-* Events CMS
+- Admin panel
+- Characters
+- Events CMS
 
 ---
 
 # 14. 📈 Будущее масштабирование
 
-* Redis (sessions/cache)
-* Queue (BullMQ)
-* CDN assets
-* Microservices payments
-* Game API integration
-
-
+- Redis (sessions/cache)
+- Queue (BullMQ)
+- CDN assets
+- Microservices payments
+- Game API integration

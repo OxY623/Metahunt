@@ -4,13 +4,13 @@
 
 ## Структура монорепо
 
-| Путь | Описание |
-|------|----------|
-| `apps/web` | Next.js 16 + React 19 фронтенд (Tailwind v4, @repo/ui) |
-| `apps/api` | FastAPI бэкенд |
-| `apps/docs` | Docusaurus документация |
-| `packages/ui` | UI-компоненты (Button, Card, Code) |
-| `packages/tailwind` | Tailwind v4 конфигурация для монорепо |
+| Путь                | Описание                                               |
+| ------------------- | ------------------------------------------------------ |
+| `apps/web`          | Next.js 16 + React 19 фронтенд (Tailwind v4, @repo/ui) |
+| `apps/api`          | FastAPI бэкенд                                         |
+| `apps/docs`         | Docusaurus документация                                |
+| `packages/ui`       | UI-компоненты (Button, Card, Code)                     |
+| `packages/tailwind` | Tailwind v4 конфигурация для монорепо                  |
 
 ## Быстрый старт
 
@@ -36,9 +36,11 @@ pnpm dev
 ## Переменные окружения
 
 ### apps/web
+
 - `NEXT_PUBLIC_API_URL` — URL API (по умолчанию `http://localhost:8000`)
 
 ### apps/api
+
 - `DATABASE_URL` — PostgreSQL connection string
 - `SECRET_KEY` — JWT секрет
 - `ALGORITHM` — HS256

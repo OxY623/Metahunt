@@ -65,6 +65,9 @@ importers:
       '@repo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      augmented-ui:
+        specifier: ^2.0.0
+        version: 2.0.0
       next:
         specifier: 16.1.5
         version: 16.1.5(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -2444,6 +2447,9 @@ packages:
   async-function@1.0.0:
     resolution: {integrity: sha512-hsU18Ae8CDTR6Kgu9DYf0EbCr/a5iGL0rytQDobUcdpYOKokk8LEjVphnXkDkgpi0wYVsqrXuP0bZxJaTqdgoA==}
     engines: {node: '>= 0.4'}
+
+  augmented-ui@2.0.0:
+    resolution: {integrity: sha512-5hp6zqzNwn7mhhdgZq5kOqzK5el642ubKJNR++5Desou9RnMuxQ0MtCzxAu/dkoXn8wmQoqzwagGmVY4La7NjA==}
 
   autoprefixer@10.4.27:
     resolution: {integrity: sha512-NP9APE+tO+LuJGn7/9+cohklunJsXWiaWEfV3si4Gi/XHDwVNgkwr1J3RQYFIvPy76GmJ9/bW8vyoU1LcxwKHA==}
@@ -9466,6 +9472,8 @@ snapshots:
   astring@1.9.0: {}
 
   async-function@1.0.0: {}
+
+  augmented-ui@2.0.0: {}
 
   autoprefixer@10.4.27(postcss@8.5.6):
     dependencies:

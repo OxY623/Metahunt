@@ -1,29 +1,30 @@
 # Backand
-## Активация env окружения 
+
+## Активация env окружения
+
 `source venv/bin/activate`
 
 ## Структура проекта(separation of concerns)
 
 api/
 │
-├── main.py                    ← точка входа, запуск сервера
-├── .env                       ← переменные окружения (секреты)
+├── main.py ← точка входа, запуск сервера
+├── .env ← переменные окружения (секреты)
 ├── requirements.txt
 │
 └── app/
-    ├── __init__.py
-    ├── database.py            ← подключение к PostgreSQL
-    ├── config.py              ← настройки из .env
-    │
-    └── users/
-        ├── __init__.py
-        ├── models.py          ← таблица в БД
-        ├── schemas.py         ← формат данных (вход/выход API)
-        ├── repository.py      ← запросы к БД
-        ├── service.py         ← бизнес-логика
-        ├── dependencies.py    ← dependency injection
-        └── router.py          ← HTTP эндпоинты
-
+├── **init**.py
+├── database.py ← подключение к PostgreSQL
+├── config.py ← настройки из .env
+│
+└── users/
+├── **init**.py
+├── models.py ← таблица в БД
+├── schemas.py ← формат данных (вход/выход API)
+├── repository.py ← запросы к БД
+├── service.py ← бизнес-логика
+├── dependencies.py ← dependency injection
+└── router.py ← HTTP эндпоинты
 
 ```
 
@@ -107,3 +108,4 @@ OXY:  strategy / reliability / organization растут
 5. POST /auth/logout
    → refresh_token отзывается в БД
    → cookie удаляется
+```

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -8,6 +8,7 @@ import {
   getMe,
   type AdminUser,
 } from "../../lib/api";
+import { Button } from "../../shared/ui/Button";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -40,9 +41,7 @@ export default function AdminPage() {
         const list = await adminListUsers(t, { limit: 100, offset: 0 });
         setUsers(list);
       } catch (e) {
-        setError(
-          e instanceof Error ? e.message : "Ошибка загрузки админки"
-        );
+        setError(e instanceof Error ? e.message : "Ошибка загрузки админки");
       } finally {
         setLoading(false);
       }
@@ -56,13 +55,9 @@ export default function AdminPage() {
     setError(null);
     try {
       const updated = await adminUpdateUserRole(token, user.id, nextRole);
-      setUsers((prev) =>
-        prev.map((u) => (u.id === updated.id ? updated : u))
-      );
+      setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
     } catch (e) {
-      setError(
-        e instanceof Error ? e.message : "Не удалось обновить роль"
-      );
+      setError(e instanceof Error ? e.message : "Не удалось обновить роль");
     } finally {
       setUpdatingId(null);
     }
@@ -78,18 +73,18 @@ export default function AdminPage() {
 
   return (
     <main className="min-h-screen pb-24">
-      <div className="scanlines" aria-hidden />
       <header className="fixed top-0 left-0 right-0 z-50 cyber-border-b border-meta-border bg-meta-bg/95 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <span className="font-display text-lg tracking-widest neon-text-cyan">
             ADMIN PANEL
           </span>
-          <a
-            href="/"
-            className="cyber-btn px-4 py-2 text-sm text-text-muted hover:text-brand-cyan rounded"
+          <Button
+            variant="neutral"
+            size="sm"
+            onClick={() => router.push("/dashboard")}
           >
-            ← НАЗАД
-          </a>
+            ← Назад
+          </Button>
         </div>
       </header>
 
@@ -153,16 +148,17 @@ export default function AdminPage() {
                         {new Date(u.created_at).toLocaleDateString("ru-RU")}
                       </td>
                       <td className="py-2">
-                        <button
+                        <Button
                           type="button"
-                          onClick={() => handleToggleRole(u)}
+                          variant="cyan"
+                          size="sm"
                           disabled={updatingId === u.id}
-                          className="cyber-btn px-3 py-1 text-xs bg-brand-cyan/10 text-brand-cyan cyber-border rounded disabled:opacity-50"
+                          onClick={() => handleToggleRole(u)}
                         >
                           {u.role === "ADMIN"
                             ? "Сделать USER"
                             : "Сделать ADMIN"}
-                        </button>
+                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -175,4 +171,3 @@ export default function AdminPage() {
     </main>
   );
 }
-

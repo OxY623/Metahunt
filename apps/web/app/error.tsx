@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
+import { Button } from "../shared/ui/Button";
 
 export default function ErrorPage({
   error,
@@ -38,7 +39,8 @@ export default function ErrorPage({
 
               {error?.digest && (
                 <div className="mt-4 text-[11px] tracking-[0.22em] uppercase text-text-dim">
-                  digest: <span className="text-brand-cyan">{error.digest}</span>
+                  digest:{" "}
+                  <span className="text-brand-cyan">{error.digest}</span>
                 </div>
               )}
 
@@ -46,22 +48,19 @@ export default function ErrorPage({
                 <div className="text-text-dim">$ network.status()</div>
                 <div className="text-brand-pink terminal-flicker">ERROR</div>
                 <div className="text-text-dim">$ shards.recover()</div>
-                <div className="text-brand-cyan terminal-flicker">RETRYING…</div>
+                <div className="text-brand-cyan terminal-flicker">
+                  RETRYING…
+                </div>
               </div>
 
               <div className="mt-8 flex items-center justify-center gap-3">
-                <button
-                  type="button"
-                  onClick={reset}
-                  className="cyber-btn glitch-hover px-4 py-2 text-sm rounded border border-brand-pink/60 text-brand-pink hover:bg-brand-pink/10"
-                >
-                  RETRY
-                </button>
-                <Link
-                  href="/"
-                  className="cyber-btn glitch-hover px-4 py-2 text-sm rounded border border-brand-cyan/60 text-brand-cyan hover:bg-brand-cyan/10"
-                >
-                  HOME
+                <Button variant="pink" size="sm" onClick={reset}>
+                  Retry
+                </Button>
+                <Link href="/">
+                  <Button variant="cyan" size="sm">
+                    Home
+                  </Button>
                 </Link>
               </div>
             </div>

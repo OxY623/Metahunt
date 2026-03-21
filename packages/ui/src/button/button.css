@@ -1,0 +1,16 @@
+.cyber-button {
+  background: transparent;
+  color: #00fbff;
+  border: 1px solid #00fbff;
+  padding: 10px 20px;
+  text-transform: uppercase;
+  clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+  box-shadow: 0 0 10px #00fbff;
+  transition: all 0.3s;
+}
+
+.cyber-button:hover {
+  background: #00fbff;
+  color: #000;
+  box-shadow: 0 0 30px #00fbff;
+}

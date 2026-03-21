@@ -1,6 +1,7 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
+@import "augmented-ui/augmented-ui.css";
 
-/* Tailwind v4: сканировать только src packages/ui (без node_modules) */
+/* Tailwind v4: СЃРєР°РЅРёСЂРѕРІР°С‚СЊ С‚РѕР»СЊРєРѕ src packages/ui (Р±РµР· node_modules) */
 @source "../../packages/ui/src";
 
 :root {
@@ -99,14 +100,14 @@ a {
   animation: glitch 0.3s linear infinite;
 }
 
-/* Анимация медленного движения */
+/* РђРЅРёРјР°С†РёСЏ РјРµРґР»РµРЅРЅРѕРіРѕ РґРІРёР¶РµРЅРёСЏ */
 @keyframes bgFloat {
   0% { transform: scale(1) translateY(0px); }
   50% { transform: scale(1.05) translateY(-20px); }
   100% { transform: scale(1) translateY(0px); }
 }
 
-/* Градиентное неоновое свечение */
+/* Р“СЂР°РґРёРµРЅС‚РЅРѕРµ РЅРµРѕРЅРѕРІРѕРµ СЃРІРµС‡РµРЅРёРµ */
 @keyframes glowPulse {
   0% { opacity: 0.4; }
   50% { opacity: 0.7; }
@@ -198,4 +199,90 @@ a {
 
 .glitchy {
   animation: glitchyText 2.8s steps(10, end) infinite;
+}
+
+
+/* === AUGMENTED UI === */
+.aug-btn {
+  background: rgba(11, 15, 26, 0.85);
+  border: 1px solid var(--color-meta-border);
+  color: var(--color-text-primary);
+}
+.aug-btn--cyan {
+  border-color: rgba(0, 240, 255, 0.6);
+  color: var(--color-brand-cyan);
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.18);
+}
+.aug-btn--pink {
+  border-color: rgba(255, 58, 242, 0.6);
+  color: var(--color-brand-pink);
+  box-shadow: 0 0 16px rgba(255, 58, 242, 0.18);
+}
+.aug-btn--neutral {
+  border-color: var(--color-meta-border);
+  color: var(--color-text-muted);
+}
+.aug-btn--warning {
+  border-color: rgba(251, 191, 36, 0.6);
+  color: #fbbf24;
+}
+
+.aug-input {
+  background: rgba(11, 15, 26, 0.9);
+  border: 1px solid var(--color-meta-border);
+  color: var(--color-text-primary);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.aug-input:focus {
+  outline: none;
+  border-color: var(--color-brand-cyan);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+}
+.aug-input--muted {
+  background: rgba(17, 24, 39, 0.9);
+}
+
+.aug-panel {
+  background: linear-gradient(135deg, rgba(17, 24, 39, 0.95) 0%, rgba(11, 15, 26, 0.98) 100%);
+  border: 1px solid var(--color-meta-border);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.1), inset 0 1px 0 rgba(255,255,255,0.03);
+}
+.aug-panel--cyan {
+  border-color: rgba(0, 240, 255, 0.4);
+}
+.aug-panel--pink {
+  border-color: rgba(255, 58, 242, 0.4);
+}
+.aug-panel--neutral {
+  border-color: var(--color-meta-border);
+}
+
+/* === HERO REVEAL / AGGRESSIVE FRAME === */
+@keyframes revealFade {
+  0% { opacity: 0; transform: translateY(16px) scale(0.98); filter: blur(4px); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+@keyframes revealPop {
+  0% { opacity: 0; transform: translateY(10px) scale(0.97); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.reveal-fade { animation: revealFade 0.6s ease-out both; }
+.reveal-pop { animation: revealPop 0.5s ease-out both; }
+
+.aggressive-frame {
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  box-shadow:
+    0 0 18px rgba(0, 240, 255, 0.2),
+    0 0 32px rgba(255, 58, 242, 0.18),
+    inset 0 0 22px rgba(0, 240, 255, 0.08);
+}
+.aggressive-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, rgba(0, 240, 255, 0.08), transparent 40%),
+    radial-gradient(circle at 85% 15%, rgba(255, 58, 242, 0.18), transparent 45%);
+  mix-blend-mode: screen;
 }

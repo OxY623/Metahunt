@@ -95,9 +95,9 @@ npx turbo dev
 
 ## Матрица зависимостей пакетов
 
-| Пакет | Зависит от |
-|-------|-----------|
-| `apps/web` | `packages/ui`, `packages/logic` |
-| `apps/api` | — (чистый Python) |
-| `packages/ui` | `packages/logic` (типы фракций) |
+| Пакет            | Зависит от                              |
+| ---------------- | --------------------------------------- |
+| `apps/web`       | `packages/ui`, `packages/logic`         |
+| `apps/api`       | — (чистый Python)                       |
+| `packages/ui`    | `packages/logic` (типы фракций)         |
 | `packages/logic` | — (только TypeScript, без зависимостей) |
