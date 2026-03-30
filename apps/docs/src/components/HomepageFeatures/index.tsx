@@ -9,7 +9,7 @@ const FeatureList = [
     Svg: require("@site/static/img/undraw_docusaurus_mountain.svg").default,
     description: (
       <>
-        Присоединись к одной из фракций. Каждая (Wolf/OXY, Fox, Bear, Owl)
+        Присоединись к одной из фракций. Каждая (Wolf/OXY, FoxY, Bear, Owl)
         уникальна, имеет свой игровой интерфейс: UI, доступ к терминалам и
         механику взаимодействия.
       </>
@@ -41,7 +41,7 @@ const FeatureList = [
 
 function Feature({ title, Svg, description }: (typeof FeatureList)[number]) {
   return (
-    <div className={clsx("col col--4", styles.card)}>
+    <div className={clsx("col col--3", styles.card)}>
       <div className="text--center">
         <Svg className={styles.featureSvg} role="img" />
       </div>
@@ -57,7 +57,7 @@ export default function HomepageFeatures(): ReactNode {
   return (
     <section className={styles.features}>
       <div className="container">
-        <div className="row">
+        <div className={clsx("row", styles.rowContent)}>
           {FeatureList.map((props, idx) => (
             <Feature key={idx} {...props} />
           ))}

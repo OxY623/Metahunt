@@ -15,7 +15,11 @@
 .blurA {
   width: 280px;
   height: 280px;
-  background: radial-gradient(circle, rgba(123, 242, 255, 0.35) 0%, rgba(123, 242, 255, 0) 60%);
+  background: radial-gradient(
+    circle,
+    rgba(123, 242, 255, 0.35) 0%,
+    rgba(123, 242, 255, 0) 60%
+  );
   top: -40px;
   left: -60px;
 }
@@ -23,7 +27,11 @@
 .blurB {
   width: 320px;
   height: 320px;
-  background: radial-gradient(circle, rgba(148, 108, 255, 0.35) 0%, rgba(148, 108, 255, 0) 60%);
+  background: radial-gradient(
+    circle,
+    rgba(148, 108, 255, 0.35) 0%,
+    rgba(148, 108, 255, 0) 60%
+  );
   bottom: -60px;
   right: -40px;
 }
@@ -33,7 +41,11 @@
   text-align: center;
   padding: 3rem;
   border: 1px solid var(--card-border);
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.02)
+  );
   border-radius: 24px;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
 }

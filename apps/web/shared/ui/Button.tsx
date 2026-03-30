@@ -16,7 +16,7 @@ const variantClass: Record<Variant, string> = {
 };
 
 const sizeClass = {
-  sm: "px-3 py-2 text-xs",
+  sm: "px-3 py-2 text-[11px]",
   md: "px-4 py-3 text-sm",
   lg: "px-5 py-3 text-sm md:text-base",
 };
@@ -35,7 +35,7 @@ export function Button({
         "augmented-ui cyber-btn",
         variantClass[variant],
         sizeClass[size],
-        "rounded-sm transition hover:shadow-[0_0_12px_rgba(0,240,255,0.2)] disabled:opacity-60 disabled:cursor-not-allowed",
+        "rounded-sm transition hover:shadow-[0_0_16px_rgba(0,240,255,0.22)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/40 disabled:opacity-60 disabled:cursor-not-allowed",
         className,
       )}
       data-augmented-ui="tl-clip tr-clip bl-clip br-clip"

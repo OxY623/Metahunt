@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap");
 
 :root {
   --ifm-color-primary: #7bf2ff;
@@ -10,16 +10,23 @@
   --ifm-color-primary-lightest: #e3fdff;
   --ifm-code-font-size: 94%;
   --docusaurus-highlighted-code-line-bg: rgba(123, 242, 255, 0.08);
-  --ifm-font-family-base: 'Space Grotesk', 'Inter', system-ui, -apple-system, sans-serif;
-  --ifm-font-family-monospace: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  --page-bg: radial-gradient(circle at 10% 20%, rgba(75, 0, 130, 0.25), transparent 25%),
-             radial-gradient(circle at 85% 10%, rgba(0, 255, 255, 0.12), transparent 22%),
-             linear-gradient(120deg, #05060b 0%, #0a0f1c 100%);
+  --ifm-font-family-base:
+    "Space Grotesk", "Inter", system-ui, -apple-system, sans-serif;
+  --ifm-font-family-monospace:
+    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --page-bg:
+    radial-gradient(circle at 10% 20%, rgba(75, 0, 130, 0.25), transparent 25%),
+    radial-gradient(
+      circle at 85% 10%,
+      rgba(0, 255, 255, 0.12),
+      transparent 22%
+    ),
+    linear-gradient(120deg, #05060b 0%, #0a0f1c 100%);
   --card-bg: rgba(255, 255, 255, 0.05);
   --card-border: rgba(255, 255, 255, 0.07);
 }
 
-[data-theme='dark'] {
+[data-theme="dark"] {
   --ifm-color-primary: #7bf2ff;
   --ifm-color-primary-dark: #57d4e1;
   --ifm-color-primary-darker: #3fbccd;
@@ -31,20 +38,27 @@
 }
 
 body {
-  background: var(--page-bg);
   color: #e6edf3;
 }
 
-.navbar, .footer {
+.navbar,
+.footer {
   backdrop-filter: blur(12px);
   background: rgba(7, 10, 16, 0.8);
 }
 
 .button.button--secondary {
   border: 1px solid rgba(255, 255, 255, 0.25);
-  background: linear-gradient(135deg, rgba(123, 242, 255, 0.15), rgba(148, 108, 255, 0.15));
+  background: linear-gradient(
+    135deg,
+    rgba(123, 242, 255, 0.15),
+    rgba(148, 108, 255, 0.15)
+  );
   color: #e6edf3;
-  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease;
 }
 
 .button.button--secondary:hover {

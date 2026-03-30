@@ -3,20 +3,33 @@
   align-items: center;
   padding: 1.5rem 0 0;
   width: 100%;
+  justify-content: space-between;
+  gap: 10px !important;
 }
 
 .card {
-  padding: 1.5rem 1rem 2rem;
+  padding: 1.5rem 1.5rem 2rem;
   border: 1px solid var(--card-border);
   background: var(--card-bg);
   border-radius: 16px;
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.24);
+  transition: transform 1s ease-in-out;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: scale(1.1);
 }
 
 .featureSvg {
-  height: 180px;
-  width: 180px;
+  height: auto;
+  width: 150px;
   opacity: 0.9;
+}
+
+.rowContent {
+  display: flex;
+  justify-content: space-between;
 }
 
 @media screen and (max-width: 996px) {

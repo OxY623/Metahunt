@@ -25,7 +25,7 @@ export default function PrologSection() {
             <h2>Добро пожаловать в систему ADMIN</h2>
             <p className={styles.lead}>
               Выберите свой путь, как сделали многие. Каждая каста уникальна в
-              способе выжить, будь выбор ваш: Wolf/OXY, Fox, Bear или Owl.
+              способе выжить, будь выбор ваш: Wolf/OXY, FoxY, Bear или Owl.
             </p>
           </div>
           <div className={styles.grid}>

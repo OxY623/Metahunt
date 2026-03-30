@@ -48,14 +48,14 @@ export function ArchetypeActions({ token, archetype, onDone }: Props) {
   };
 
   return (
-    <Panel>
-      <div className="flex items-center justify-between">
-        <h2 className="text-brand-cyan text-sm uppercase tracking-wider">
+    <Panel className="space-y-4">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <h2 className="text-sm uppercase tracking-wider archetype-heading">
           {ACTION_TITLE[archetype]}
         </h2>
-        {msg && <span className="text-xs text-brand-cyan">{msg}</span>}
+        {msg && <span className="text-xs archetype-chip px-2 py-1">{msg}</span>}
       </div>
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="space-y-2">
           <label className="text-xs text-text-muted uppercase tracking-wider">
             Target ID
@@ -79,7 +79,7 @@ export function ArchetypeActions({ token, archetype, onDone }: Props) {
           </div>
         )}
       </div>
-      <div className="mt-4 flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-3">
         {archetype === "FOXY" && (
           <Button
             variant="pink"

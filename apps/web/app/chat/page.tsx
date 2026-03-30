@@ -193,7 +193,7 @@ export default function ChatPage() {
       <div className="flex-1 overflow-y-auto px-4 py-4 max-w-3xl mx-auto w-full">
         {profile?.archetype && (
           <div
-            className={`mb-4 cyber-card rounded-lg p-3 border ${theme?.border ?? "border-meta-border"}`}
+            className={`mb-4 cyber-card archetype-panel rounded-lg p-3 border ${theme?.border ?? "border-meta-border"}`}
           >
             <div className="text-xs uppercase tracking-wider text-text-dim">
               Твоя фракция
@@ -235,7 +235,7 @@ export default function ChatPage() {
         </div>
 
         {profile?.archetype && (
-          <div className="mb-4 cyber-card rounded-lg p-3 border border-meta-border">
+          <div className="mb-4 cyber-card archetype-panel rounded-lg p-3 border border-meta-border">
             <div className="text-xs uppercase tracking-wider text-text-dim">
               Фракционные навыки
             </div>

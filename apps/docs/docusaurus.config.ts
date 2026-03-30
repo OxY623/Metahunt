@@ -75,7 +75,7 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      // title: 'Docs',
+      title: "Main Page",
       logo: {
         alt: "My Site Logo",
         src: "img/logo.svg",
@@ -87,7 +87,6 @@ const config: Config = {
           position: "left",
           label: "Docs",
         },
-        // {to: '/docs/overview', label: 'Docs', position: 'left'},
         {
           href: "https://github.com/OxY623/Metahunt",
           label: "GitHub",

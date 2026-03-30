@@ -1,4 +1,4 @@
-﻿import type { Metadata, Viewport } from "next";
+import type { Metadata, Viewport } from "next";
 import { Orbitron, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteChrome } from "../widgets/site/SiteChrome";
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     "msapplication-TileImage": "/ms-icon-144x144.png",
   },
 };
-
+//linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.9)),
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -60,9 +60,13 @@ export default function RootLayout({
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{
-              backgroundImage: "url('/bg.png')",
+              backgroundImage: "var(--meta-bg-image)",
               animation: "bgFloat 25s ease-in-out infinite",
             }}
+          />
+          <div
+            className="absolute inset-0"
+            style={{ backgroundImage: "var(--hero-halo)" }}
           />
           <div className="absolute inset-0 bg-black/70" />
           <div

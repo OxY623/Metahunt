@@ -23,16 +23,22 @@ export function ArchetypePicker({ token, onChosen }: Props) {
   };
 
   return (
-    <Panel>
-      <h2 className="text-brand-cyan text-sm uppercase tracking-wider">
-        Выбери архетип
-      </h2>
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+    <Panel className="space-y-4">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <h2 className="text-sm uppercase tracking-wider archetype-heading">
+          Выбери архетип
+        </h2>
+        <span className="text-xs text-text-dim">
+          Каждому доступна своя ветка умений.
+        </span>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {ARCHETYPES.map((type) => (
           <Button
             key={type}
             variant="neutral"
-            className="text-left px-4 py-4 flex flex-col gap-2"
+            data-archetype={type}
+            className="text-left px-4 py-4 flex flex-col gap-2 archetype-choice"
             onClick={() => handlePick(type)}
           >
             <div className="text-sm font-semibold text-text-primary">

@@ -29,7 +29,12 @@ export default function HomePage() {
 
         <section className="mt-12 grid gap-8 md:grid-cols-[1.1fr_0.9fr] items-start">
           <div className="space-y-4">
-            <SectionHeading as="h1">Вход В Систему</SectionHeading>
+            <SectionHeading
+              as="h1"
+              className={profile?.archetype ? "archetype-heading" : ""}
+            >
+              Вход В Систему
+            </SectionHeading>
             <p className="text-text-muted text-sm">
               Охоться. Следи. Доминируй. Админ фиксирует каждый шаг.
             </p>

@@ -10,10 +10,10 @@ export default function Hero() {
       <div className={styles.blurB} />
       <div className="container">
         <div className={styles.content}>
-          {/* Было: PROLOG  ADMIN */}
+
           <div className={styles.badge}>PROLOG & ADMIN</div>
           <MetaHuntLogo />
-          <h1 className={styles.title}>MetaHunt</h1>
+          {/* <h1 className={styles.title}>MetaHunt</h1> */}
           <p className={styles.subtitle}>
             Асинхронная MMO для хакеров, тактиков и адептов теневых сетей. Твое
             погружение в мир киберпанка и тайных орденов.

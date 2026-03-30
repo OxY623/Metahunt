@@ -12,7 +12,15 @@ export default function AdminProtocolHero({ className }: Props) {
     >
       <div className="relative overflow-hidden rounded-2xl border border-meta-border cyber-card">
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-meta-bg/90 via-meta-bg/70 to-meta-bg/95" />
+          <div
+            className="absolute inset-0 bg-cover bg-center opacity-45"
+            style={{ backgroundImage: "var(--meta-hero-image)" }}
+          />
+          <div
+            className="absolute inset-0"
+            style={{ backgroundImage: "var(--hero-halo)" }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-meta-bg/85 via-meta-bg/70 to-meta-bg/95" />
           <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_20%_20%,rgba(0,240,255,0.25),transparent_40%),radial-gradient(circle_at_80%_70%,rgba(255,58,242,0.2),transparent_45%)]" />
         </div>
 
@@ -28,7 +36,7 @@ export default function AdminProtocolHero({ className }: Props) {
                   alt="MetaHunt логотип"
                   fill
                   sizes="112px"
-                  className="object-cover rounded-full drop-shadow-[0_0_20px_rgba(0,240,255,0.45)]"
+                  className="object-cover rounded-full drop-shadow-[0_0_22px_rgba(0,240,255,0.55)]"
                   priority
                 />
               </div>

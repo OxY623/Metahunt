@@ -6,10 +6,10 @@ type Props = HTMLAttributes<HTMLSpanElement> & {
 };
 
 const toneClass = {
-  cyan: "text-brand-cyan border-brand-cyan/50",
-  pink: "text-brand-pink border-brand-pink/50",
-  muted: "text-text-muted border-meta-border",
-  warning: "text-amber-300 border-amber-300/50",
+  cyan: "text-brand-cyan border-brand-cyan/50 bg-brand-cyan/10",
+  pink: "text-brand-pink border-brand-pink/50 bg-brand-pink/10",
+  muted: "text-text-muted border-meta-border bg-meta-surface/40",
+  warning: "text-amber-300 border-amber-300/50 bg-amber-300/10",
 };
 
 export function Badge({ className, tone = "muted", ...props }: Props) {

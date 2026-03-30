@@ -17,7 +17,7 @@ tags: [architecture, turborepo, monorepo]
 ## Дерево папок
 
 ```
-/blyat-project
+/metahunt
 ├── apps/
 │   ├── web/                  ← Next.js (фронтенд)
 │   │   ├── app/

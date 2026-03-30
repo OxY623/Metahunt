@@ -40,10 +40,15 @@ export default function DashboardPage() {
       <SiteHeader />
 
       <div className="pt-10 px-4 max-w-6xl mx-auto space-y-6">
-        <SectionHeading as="h1">Панель управления</SectionHeading>
+        <SectionHeading
+          as="h1"
+          className={profile?.archetype ? "archetype-heading" : ""}
+        >
+          Панель управления
+        </SectionHeading>
 
-        <Panel>
-          <h2 className="text-brand-cyan text-sm uppercase tracking-wider mb-4">
+        <Panel className="space-y-4">
+          <h2 className="text-brand-cyan text-sm uppercase tracking-wider mb-2">
             Профиль
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
@@ -60,7 +65,7 @@ export default function DashboardPage() {
               <span className="text-text-dim">Role:</span> {user.role}
             </p>
           </div>
-          <div className="mt-4 flex flex-wrap gap-3">
+          <div className="mt-2 flex flex-wrap gap-3">
             <Button
               variant="cyan"
               size="sm"
@@ -81,7 +86,7 @@ export default function DashboardPage() {
         {profile && (
           <Panel variant="pink" className="space-y-3">
             <div className="flex items-center gap-3 flex-wrap">
-              <h2 className="text-brand-pink text-sm uppercase tracking-wider">
+              <h2 className="text-sm uppercase tracking-wider archetype-heading">
                 Игровой профиль
               </h2>
               {profile.archetype && (
@@ -122,7 +127,7 @@ export default function DashboardPage() {
                   {Object.entries(profile.stats).map(([k, v]) => (
                     <span
                       key={k}
-                      className="px-2 py-1 bg-meta-surface rounded text-xs"
+                      className="px-2 py-1 bg-meta-surface/70 rounded text-xs"
                     >
                       {k}: {v}
                     </span>
