@@ -37,5 +37,5 @@ class UserService:
     async def change_password(
         self, user_id: UUID, dto: ChangePassword
     ) -> None:
-        # TODO: проверить current_password, захешировать new_password, обновить в БД
+        # TODO:  current_password,  new_password,   
         pass

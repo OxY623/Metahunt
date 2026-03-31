@@ -9,6 +9,7 @@ const FOOTER_LINKS = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/chat", label: "Чат" },
   { href: "/profile", label: "Профиль" },
+  { href: "/settings", label: "Настройки" },
 ];
 
 export function SiteFooter() {
@@ -21,7 +22,7 @@ export function SiteFooter() {
       {/* 🌫 BACKGROUND */}
       <div className="bg-black/60 backdrop-blur-xl border-t border-white/10 opacity-[0.9]">
 
-        <div className="max-w-6xl mx-auto px-4 py-6">
+        <div className="page-shell py-6">
 
           {/* 🧠 TOP ROW */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -101,3 +102,4 @@ export function SiteFooter() {
 //     </footer>
 //   );
 // }
+

@@ -2,7 +2,7 @@
 
 import uuid                    # стандартная библиотека Python для генерации UUID
 from datetime import datetime  # для работы с датой и временем
-from sqlalchemy import Column, String, Boolean, DateTime, Enum as SAEnum
+from sqlalchemy import Column, String, Boolean, DateTime, Enum as SAEnum, Text
 # Column — описывает колонку таблицы
 # String, Boolean, DateTime — типы данных колонок
 # Enum — перечисление (как "USER" или "ADMIN"), SAEnum чтобы не конфликтовать с Python enum
@@ -45,6 +45,8 @@ class User(Base):              # наследуемся от Base — SQLAlchemy
     nickname = Column(String, unique=True, nullable=False, index=True)
     
     avatar = Column(String, nullable=True)
+    bio = Column(Text, nullable=True)
+    privacy = Column(String, default="public", nullable=False)
     # nullable=True — аватар необязателен, может быть NULL
     
     verified = Column(Boolean, default=False)
@@ -71,3 +73,5 @@ class User(Base):              # наследуемся от Base — SQLAlchemy
         cascade="all, delete-orphan"
     )
     # Relationships — SQLAlchemy подгружает связанные объекты автоматически
+
+

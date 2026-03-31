@@ -41,6 +41,18 @@ class UserUpdate(BaseModel):
     # Optional — поля необязательные (можно обновить только nickname или только avatar)
     nickname: Optional[str] = Field(None, min_length=3, max_length=20)
     avatar: Optional[str] = None
+    bio: Optional[str] = Field(None, max_length=280)
+    privacy: Optional[str] = Field(None, description="public|friends|private")
+
+    @field_validator("privacy")
+    @classmethod
+    def validate_privacy(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return v
+        allowed = {"public","friends","private"}
+        if v not in allowed:
+            raise ValueError("privacy must be public, friends, or private")
+        return v
 
 class ChangePassword(BaseModel):
     current_password: str      # старый пароль для подтверждения личности
@@ -53,6 +65,8 @@ class UserResponse(BaseModel):
     email: EmailStr
     nickname: str
     avatar: Optional[str]
+    bio: Optional[str]
+    privacy: str
     verified: bool
     role: str
     created_at: datetime
@@ -61,3 +75,6 @@ class UserResponse(BaseModel):
     # from_attributes=True — позволяет создать схему из SQLAlchemy объекта
     # Без этого Pydantic не умеет читать атрибуты ORM моделей
     # Раньше это называлось orm_mode = True (Pydantic v1)
+
+
+

@@ -30,10 +30,11 @@ export default function PasswordPage() {
   return (
     <main className="min-h-screen pb-16">
       <SiteHeader />
-      <div className="pt-10 px-4 max-w-4xl mx-auto space-y-6">
+      <div className="page-shell page-shell--narrow pt-10 space-y-6">
         <SectionHeading as="h1">Смена пароля</SectionHeading>
         <PasswordForm token={token} />
       </div>
     </main>
   );
 }
+

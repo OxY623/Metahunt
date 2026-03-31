@@ -277,7 +277,7 @@ a {
     rgba(0, 0, 0, 0.1) 4px
   );
   pointer-events: none;
-  z-index: 9999;
+  z-index: 50;
 }
 .neon-text-cyan {
   text-shadow:
@@ -617,3 +617,63 @@ a {
   text-align: right;
   color: var(--text-strong);
 }
+
+/* === REDUCE MOTION === */
+[data-motion="reduce"] *,
+[data-motion="reduce"] *::before,
+[data-motion="reduce"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* === PAGE SHELL === */
+.page-shell {
+  width: 100%;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+.page-shell--narrow {
+  max-width: 56rem;
+}
+.page-shell--wide {
+  max-width: 80rem;
+}
+
+/* === COMPACT DENSITY === */
+html[data-density="compact"] .page-shell {
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+}
+html[data-density="compact"] .aug-btn {
+  padding: 0.4rem 0.7rem !important;
+  font-size: 0.75rem !important;
+}
+html[data-density="compact"] .aug-input,
+html[data-density="compact"] textarea.aug-input {
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.85rem !important;
+}
+html[data-density="compact"] .nav-link {
+  padding: 0.25rem 0.5rem !important;
+  font-size: 0.65rem !important;
+}
+html[data-density="compact"] .cyber-card,
+html[data-density="compact"] .aug-panel {
+  padding: 1rem !important;
+}
+html[data-density="compact"] .sound-panel {
+  padding: 0.6rem !important;
+}
+
+/* === AUGMENTED UI SAFETY === */
+.augmented-ui {
+  padding-inline: 0.15rem;
+}
+.aug-btn,
+.aug-input {
+  line-height: 1.2;
+}
+

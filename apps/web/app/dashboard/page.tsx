@@ -39,7 +39,7 @@ export default function DashboardPage() {
     <main className="min-h-screen pb-16">
       <SiteHeader />
 
-      <div className="pt-10 px-4 max-w-6xl mx-auto space-y-6">
+      <div className="page-shell pt-10 space-y-6">
         <SectionHeading
           as="h1"
           className={profile?.archetype ? "archetype-heading" : ""}
@@ -160,3 +160,4 @@ export default function DashboardPage() {
     </main>
   );
 }
+

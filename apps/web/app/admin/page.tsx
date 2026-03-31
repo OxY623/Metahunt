@@ -9,6 +9,9 @@ import {
   type AdminUser,
 } from "../../lib/api";
 import { Button } from "../../shared/ui/Button";
+import { SiteHeader } from "../../widgets/site/SiteHeader";
+import { SectionHeading } from "../../shared/ui/SectionHeading";
+import { Panel } from "../../shared/ui/Panel";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -73,11 +76,11 @@ export default function AdminPage() {
 
   return (
     <main className="min-h-screen pb-24">
-      <header className="fixed top-0 left-0 right-0 z-50 cyber-border-b border-meta-border bg-meta-bg/95 backdrop-blur-sm">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-          <span className="font-display text-lg tracking-widest neon-text-cyan">
-            ADMIN PANEL
-          </span>
+      <SiteHeader />
+
+      <div className="page-shell pt-10 space-y-6">
+        <div className="flex items-center justify-between gap-3">
+          <SectionHeading as="h1">Админ-панель</SectionHeading>
           <Button
             variant="neutral"
             size="sm"
@@ -86,9 +89,7 @@ export default function AdminPage() {
             ← Назад
           </Button>
         </div>
-      </header>
 
-      <div className="pt-20 px-4 max-w-5xl mx-auto">
         {error && (
           <div className="cyber-border-pink bg-brand-pink/10 text-brand-pink px-4 py-3 rounded mb-4 text-sm">
             {error}
@@ -102,10 +103,10 @@ export default function AdminPage() {
             Доступ запрещён. Нужна роль ADMIN.
           </p>
         ) : (
-          <section className="cyber-card cyber-border rounded-lg p-4 md:p-6">
-            <h1 className="font-display text-xl tracking-widest neon-text-cyan mb-4">
+          <Panel className="space-y-4">
+            <h2 className="font-display text-xl tracking-widest neon-text-cyan">
               Пользователи
-            </h1>
+            </h2>
             <div className="overflow-x-auto">
               <table className="w-full text-sm border-collapse">
                 <thead>
@@ -165,7 +166,7 @@ export default function AdminPage() {
                 </tbody>
               </table>
             </div>
-          </section>
+          </Panel>
         )}
       </div>
     </main>

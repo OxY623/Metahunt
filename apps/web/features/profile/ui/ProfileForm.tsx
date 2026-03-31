@@ -7,6 +7,12 @@ import { Button } from "../../../shared/ui/Button";
 import { Input } from "../../../shared/ui/Input";
 import { Panel } from "../../../shared/ui/Panel";
 
+const PRIVACY_OPTIONS = [
+  { value: "public", label: "Публичный" },
+  { value: "friends", label: "Только друзья" },
+  { value: "private", label: "Скрытый" },
+];
+
 type Props = {
   token: string;
   user: UserResponse;
@@ -27,6 +33,8 @@ export function ProfileForm({ token, user, onUpdated }: Props) {
       const u = await updateProfile(token, {
         nickname: (fd.get("nickname") as string) || undefined,
         avatar: (fd.get("avatar") as string) || undefined,
+        bio: (fd.get("bio") as string) || undefined,
+        privacy: (fd.get("privacy") as string) || undefined,
       });
       onUpdated?.(u);
       router.push("/dashboard");
@@ -55,6 +63,34 @@ export function ProfileForm({ token, user, onUpdated }: Props) {
             defaultValue={user.avatar ?? ""}
             placeholder="https://..."
           />
+        </div>
+        <div>
+          <label className="block text-xs text-text-muted mb-1 uppercase tracking-wider">
+            Bio
+          </label>
+          <textarea
+            name="bio"
+            defaultValue={user.bio ?? ""}
+            rows={4}
+            className="aug-input w-full px-4 py-3 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/30"
+            placeholder="Короткое описание..."
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-text-muted mb-1 uppercase tracking-wider">
+            Приватность
+          </label>
+          <select
+            name="privacy"
+            defaultValue={user.privacy ?? "public"}
+            className="aug-input w-full px-4 py-3 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/30"
+          >
+            {PRIVACY_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
         {error && (
           <div className="text-xs text-brand-pink border border-brand-pink/40 px-3 py-2 rounded">

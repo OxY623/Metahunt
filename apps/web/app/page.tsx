@@ -24,7 +24,7 @@ export default function HomePage() {
     <main className="min-h-screen text-text-primary pb-16">
       <SiteHeader />
 
-      <div className="pt-12 px-4 max-w-6xl mx-auto">
+      <div className="page-shell pt-12">
         <LandingHero />
 
         <section className="mt-12 grid gap-8 md:grid-cols-[1.1fr_0.9fr] items-start">
@@ -45,14 +45,14 @@ export default function HomePage() {
 
           {token && user ? (
             <Panel
-              className="space-y-5 augmented-ui aggressive-frame reveal-fade"
-              data-augmented-ui="tl-clip tr-clip bl-clip br-clip inlay"
+              className="space-y-5 aggressive-frame reveal-fade"
+              
             >
               <div className="text-xs uppercase tracking-[0.3em] text-text-dim">
                 Session Online
               </div>
               <div className="flex items-center gap-4">
-                <UserAvatar archetype={profile?.archetype ?? null} size={64} />
+                <UserAvatar archetype={profile?.archetype ?? null} avatarUrl={user.avatar ?? null} size={64} />
                 <div>
                   <div className="font-display text-2xl tracking-[0.22em] neon-text-cyan uppercase">
                     Добро пожаловать, {user.nickname}
@@ -122,3 +122,7 @@ export default function HomePage() {
     </main>
   );
 }
+
+
+
+

@@ -22,6 +22,7 @@ import { Input } from "../../shared/ui/Input";
 import { Button } from "../../shared/ui/Button";
 import { useSession } from "../../shared/model/session";
 import LoadingScreen from "../../shared/ui/LoadingScreen";
+import { SiteHeader } from "../../widgets/site/SiteHeader";
 
 const POLL_INTERVAL_MS = 3000;
 
@@ -172,9 +173,11 @@ export default function ChatPage() {
   const theme = profile?.archetype ? ARCHETYPE_THEME[profile.archetype] : null;
 
   return (
-    <main className="min-h-screen pb-24 flex flex-col">
-      <header className="sticky top-0 z-50 cyber-border-b border-meta-border bg-meta-bg/95 backdrop-blur-sm">
-        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+    <main className="min-h-screen pb-10 flex flex-col">
+      <SiteHeader />
+
+      <section className="page-shell page-shell--narrow pt-6">
+        <div className="flex items-center justify-between gap-3">
           <span
             className={`font-display text-lg tracking-widest ${theme?.accent ?? "neon-text-cyan"}`}
           >
@@ -188,9 +191,9 @@ export default function ChatPage() {
             ← Назад
           </Button>
         </div>
-      </header>
+      </section>
 
-      <div className="flex-1 overflow-y-auto px-4 py-4 max-w-3xl mx-auto w-full">
+      <div className="page-shell page-shell--narrow flex-1 py-4">
         {profile?.archetype && (
           <div
             className={`mb-4 cyber-card archetype-panel rounded-lg p-3 border ${theme?.border ?? "border-meta-border"}`}
@@ -321,26 +324,28 @@ export default function ChatPage() {
         </div>
       )}
 
-      <footer className="fixed bottom-0 left-0 right-0 cyber-border-t border-meta-border bg-meta-bg/95 backdrop-blur-sm py-4 px-4">
-        <form onSubmit={handleSubmit} className="max-w-3xl mx-auto flex gap-2">
-          <Input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Сообщение..."
-            maxLength={4096}
-            disabled={sendLoading || isBanned}
-            className="flex-1"
-          />
-          <Button
-            type="submit"
-            variant="cyan"
-            size="lg"
-            disabled={sendLoading || !input.trim() || isBanned}
-          >
-            {sendLoading ? "..." : "Отправить"}
-          </Button>
-        </form>
+      <footer className="sticky bottom-0 z-40 cyber-border-t border-meta-border bg-meta-bg/95 backdrop-blur-sm">
+        <div className="page-shell page-shell--narrow py-4">
+          <form onSubmit={handleSubmit} className="flex gap-2">
+            <Input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Сообщение..."
+              maxLength={4096}
+              disabled={sendLoading || isBanned}
+              className="flex-1"
+            />
+            <Button
+              type="submit"
+              variant="cyan"
+              size="lg"
+              disabled={sendLoading || !input.trim() || isBanned}
+            >
+              {sendLoading ? "..." : "Отправить"}
+            </Button>
+          </form>
+        </div>
       </footer>
     </main>
   );

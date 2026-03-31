@@ -29,3 +29,4 @@ export function UserAvatar({ archetype, size = 72, className, alt }: Props) {
     </div>
   );
 }
+

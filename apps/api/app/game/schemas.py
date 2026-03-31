@@ -39,6 +39,8 @@ class UserWithGameResponse(BaseModel):
     email:        str
     nickname:     str
     avatar:       Optional[str]
+    bio:          Optional[str]
+    privacy:      str
     verified:     bool
     role:         str
     game_profile: Optional[GameProfileResponse]
@@ -52,3 +54,6 @@ class TargetDto(BaseModel):
 
 class WhisperDto(TargetDto):
     message: str = Field(..., min_length=1, max_length=500)
+
+
+

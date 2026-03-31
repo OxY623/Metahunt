@@ -1,4 +1,4 @@
-import type { HTMLAttributes } from "react";
+﻿import type { HTMLAttributes } from "react";
 import { cn } from "../lib/cn";
 
 type Props = HTMLAttributes<HTMLDivElement> & {
@@ -15,13 +15,16 @@ export function Panel({ className, variant = "neutral", ...props }: Props) {
   return (
     <div
       className={cn(
-        "augmented-ui cyber-card archetype-panel",
+        "cyber-card archetype-panel",
         variantClass[variant],
-        "rounded-lg p-6 relative overflow-hidden",
+        "rounded-lg p-6 relative overflow-visible",
         className,
       )}
-      data-augmented-ui="tl-clip tr-clip bl-clip br-clip inlay"
+      
       {...props}
     />
   );
 }
+
+
+

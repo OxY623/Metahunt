@@ -6,7 +6,7 @@ export default function PrivacyPage() {
   return (
     <main className="min-h-screen pb-16">
       <SiteHeader />
-      <div className="pt-10 px-4 max-w-5xl mx-auto space-y-6">
+      <div className="page-shell pt-10 space-y-6">
         <SectionHeading as="h1">Защита персональных данных</SectionHeading>
         <Panel className="space-y-4 text-sm leading-6">
           <p>
@@ -35,3 +35,4 @@ export default function PrivacyPage() {
     </main>
   );
 }
+

@@ -9,13 +9,15 @@ export function Input({ className, variant = "default", ...props }: Props) {
   return (
     <input
       className={cn(
-        "augmented-ui aug-input",
+        "aug-input",
         variant === "muted" ? "aug-input--muted" : "",
-        "w-full px-4 py-3 rounded-sm text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/30",
+        "w-full px-4 py-3 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/30",
         className,
       )}
-      data-augmented-ui="tl-clip tr-clip br-clip bl-clip"
+      
       {...props}
     />
   );
 }
+
+
