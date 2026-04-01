@@ -98,9 +98,7 @@ export function Soundscape({ className, archetype }: Props) {
       return audio;
     });
 
-    const handleKey = (event: KeyboardEvent) => {
-      if (!enabled) return;
-      if (event.repeat) return;
+    const playClick = () => {
       const pool = clickPoolRef.current;
       if (!pool.length) return;
       const audio = pool[clickIndexRef.current % pool.length];
@@ -110,8 +108,31 @@ export function Soundscape({ className, archetype }: Props) {
       audio.play().catch(() => {});
     };
 
+    const isInteractiveTarget = (target: EventTarget | null) => {
+      if (!(target instanceof Element)) return false;
+      if (target.closest("input, textarea, select")) return false;
+      return Boolean(target.closest("button, [role='button'], a, .cyber-btn"));
+    };
+
+    const handleKey = (event: KeyboardEvent) => {
+      if (!enabled) return;
+      if (event.repeat) return;
+      playClick();
+    };
+
+    const handlePointer = (event: PointerEvent) => {
+      if (!enabled) return;
+      if (event.button !== 0) return;
+      if (!isInteractiveTarget(event.target)) return;
+      playClick();
+    };
+
     window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
+    window.addEventListener("pointerdown", handlePointer, true);
+    return () => {
+      window.removeEventListener("keydown", handleKey);
+      window.removeEventListener("pointerdown", handlePointer, true);
+    };
   }, [enabled, keySrc, keyVolume]);
 
   const toggle = () => {
