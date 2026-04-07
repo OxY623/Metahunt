@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { SiteHeader } from "../widgets/site/SiteHeader";
 import { LandingHero } from "../widgets/landing/LandingHero";
@@ -15,6 +15,7 @@ import AdminGlitchTerminal from "../widgets/foxy/AdminGlitchTerminal";
 export default function HomePage() {
   const { token, user, loading } = useSession();
   const { profile } = useGameProfile(token, Boolean(token));
+  const isAuthed = Boolean(token && user);
 
   if (loading) {
     return <LoadingScreen />;
@@ -24,41 +25,83 @@ export default function HomePage() {
     <main className="min-h-screen text-text-primary pb-16">
       <SiteHeader />
 
-      <div className="page-shell pt-12">
-        <LandingHero />
+      <div className="page-shell pt-12 space-y-10">
+        {!isAuthed ? (
+          <LandingHero />
+        ) : (
+          <Panel className="aggressive-frame reveal-fade p-6">
+            <div className="text-xs uppercase tracking-[0.3em] text-text-dim">
+              Session Online
+            </div>
+            <div className="mt-2 flex items-center justify-between gap-4 flex-wrap">
+              <div>
+                <div className="font-display text-2xl tracking-[0.2em] neon-text-cyan uppercase">
+                  Добро пожаловать, {user?.nickname}
+                </div>
+                <div className="text-xs text-text-muted uppercase tracking-[0.2em] mt-2">
+                  Архетип: {profile?.archetype ?? "не выбран"}
+                </div>
+              </div>
+              <div className="text-xs uppercase tracking-[0.24em] text-brand-pink glitchy">
+                Admin Watching
+              </div>
+            </div>
+          </Panel>
+        )}
 
-        <section className="mt-12 grid gap-8 md:grid-cols-[1.1fr_0.9fr] items-start">
+        <section className="grid gap-8 md:grid-cols-[1.1fr_0.9fr] items-start">
           <div className="space-y-4">
             <SectionHeading
               as="h1"
               className={profile?.archetype ? "archetype-heading" : ""}
             >
-              Вход В Систему
+              {isAuthed ? "Сессия активна" : "Вход в систему"}
             </SectionHeading>
             <p className="text-text-muted text-sm">
-              Охоться. Следи. Доминируй. Админ фиксирует каждый шаг.
+              {isAuthed
+                ? "Ты уже в сети. Открой панель, выбери архетип и двигайся дальше."
+                : "Охоться. Следи. Доминируй. Админ фиксирует каждый шаг."}
             </p>
             <div className="text-xs text-text-dim uppercase tracking-[0.28em]">
-              Trust = False • Survival = True
+              {isAuthed ? "Signal = Live • Admin Watching" : "Trust = False • Survival = True"}
             </div>
+
+            {isAuthed && (
+              <Panel className="mt-6 p-4">
+                <div className="text-xs uppercase tracking-[0.28em] text-text-dim">
+                  Быстрый доступ
+                </div>
+                <div className="mt-3 flex flex-wrap gap-3">
+                  <Button variant="cyan" size="sm" onClick={() => (window.location.href = "/dashboard")}>
+                    Панель
+                  </Button>
+                  <Button variant="neutral" size="sm" onClick={() => (window.location.href = "/chat")}>
+                    Чат
+                  </Button>
+                  <Button variant="neutral" size="sm" onClick={() => (window.location.href = "/codex")}>
+                    Кодекс / Правила
+                  </Button>
+                  <Button variant="neutral" size="sm" onClick={() => (window.location.href = "/profile")}>
+                    Профиль
+                  </Button>
+                </div>
+              </Panel>
+            )}
           </div>
 
-          {token && user ? (
-            <Panel
-              className="space-y-5 aggressive-frame reveal-fade"
-              
-            >
+          {isAuthed && user ? (
+            <Panel className="space-y-5 aggressive-frame reveal-fade">
               <div className="text-xs uppercase tracking-[0.3em] text-text-dim">
-                Session Online
+                Live Feed
               </div>
               <div className="flex items-center gap-4">
                 <UserAvatar archetype={profile?.archetype ?? null} avatarUrl={user.avatar ?? null} size={64} />
                 <div>
                   <div className="font-display text-2xl tracking-[0.22em] neon-text-cyan uppercase">
-                    Добро пожаловать, {user.nickname}
+                    Охота активна
                   </div>
                   <div className="text-xs text-text-muted uppercase tracking-[0.2em]">
-                    Архетип: {profile?.archetype ?? "не выбран"}
+                    Готов к действиям
                   </div>
                 </div>
               </div>
@@ -88,14 +131,14 @@ export default function HomePage() {
                   size="lg"
                   onClick={() => (window.location.href = "/dashboard")}
                 >
-                  Открыть Dashboard
+                  Открыть панель
                 </Button>
                 <Button
                   variant="neutral"
                   size="lg"
                   onClick={() => (window.location.href = "/chat")}
                 >
-                  Открыть Чат
+                  Открыть чат
                 </Button>
               </div>
               <div className="text-xs uppercase tracking-[0.24em] text-brand-pink glitchy">
@@ -114,7 +157,7 @@ export default function HomePage() {
               "_blank",
             )
           }
-          className="mt-10 text-text-dim text-xs hover:text-brand-cyan transition"
+          className={`text-text-dim text-xs hover:text-brand-cyan transition ${isAuthed ? "hidden" : ""}`}
         >
           API DOCS →
         </button>
@@ -122,7 +165,3 @@ export default function HomePage() {
     </main>
   );
 }
-
-
-
-

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
@@ -17,6 +17,7 @@ import { AudioController } from "./AudioController";
 const PRIMARY_LINKS = [
   { href: "/", label: "Главная" },
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/codex", label: "Кодекс" },
   { href: "/chat", label: "Чат" },
   { href: "/settings", label: "Настройки" },
 ];
@@ -54,7 +55,7 @@ export function SiteHeader() {
   const handleLogout = async () => {
     try {
       await logout();
-    // eslint-disable-next-line no-empty
+      // eslint-disable-next-line no-empty
     } catch (_) {}
     clear();
     setMenuOpen(false);
@@ -114,7 +115,7 @@ export function SiteHeader() {
               {[...PRIMARY_LINKS, ...SECONDARY_LINKS].map((item) => (
                 <Button
                   key={item.href}
-                  variant={pathname === item.href ? "cyan" : "neutral"}
+                  variant={item.href === "/codex" ? "pink" : pathname === item.href ? "cyan" : "neutral"}
                   size="md"
                   className="w-full justify-start"
                   onClick={() => goTo(item.href)}
@@ -203,7 +204,9 @@ export function SiteHeader() {
                 className={
                   `nav-link ${pathname === item.href
                     ? "nav-link--active"
-                    : "!text-text-muted hover:!text-brand-cyan"}`
+                    : item.href === "/codex"
+                      ? "nav-link--codex"
+                      : "!text-text-muted hover:!text-brand-cyan"}`
                 }
               >
                 {item.label}
@@ -234,4 +237,3 @@ export function SiteHeader() {
     </>
   );
 }
-

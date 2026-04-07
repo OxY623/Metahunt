@@ -1,4 +1,4 @@
-﻿---
+---
 id: db-models
 title: Модели данных
 sidebar_label: Модели и схемы
@@ -11,121 +11,72 @@ tags: [postgresql, sqlalchemy, pydantic, dto, models]
 
 ## Таблицы БД — обзор
 
-| Таблица        | Назначение                                                     |
-| -------------- | -------------------------------------------------------------- |
-| `users`        | Пользователи: id, username, фракция, уровень, осколки, энергия |
-| `factions`     | Настройки фракций: название, цвет, налоговая ставка            |
-| `transactions` | История списания/начисления Осколков                           |
-| `interactions` | Лог действий: кто, к кому, когда (для Совы)                    |
-| `bans`         | Активные баны: кто, до когда, кем выдан                        |
-| `invites`      | Инвайты: от кого, кому, статус                                 |
-| `messages`     | Сообщения чата: отправитель, комната, текст, время             |
+| Таблица         | Назначение                                                             |
+| --------------- | ---------------------------------------------------------------------- |
+| `users`         | Пользователи: email, nickname, роль, профиль                           |
+| `game_profiles` | Игровой профиль: архетип, уровни, осколки, энергия, характеристики      |
+| `messages`      | Сообщения чата: отправитель, комната, текст, анонимность, эффекты       |
 
-### Поля профиля пользователя
-
-- `avatar` — URL аватара (строка, опционально)
-- `bio` — короткое описание (строка, опционально)
-- `privacy` — уровень видимости: `public`, `friends`, `private`
+:::note Про эффекты
+Эффекты (`glitch`, `ban`, `shield`) сейчас живут в памяти сервера. Для прода
+и нескольких инстансов — вынести в Redis (TTL‑ключи или Sorted Set по времени).
+:::
 
 ---
 
-## models.py
+## models.py (упрощённо)
 
 ```python
-import enum
-from sqlalchemy import Column, Integer, String, Enum, Boolean, DateTime, ForeignKey
-from sqlalchemy.sql import func
-from database import Base
-
-class Side(str, enum.Enum):
-    FOXY = "foxy"
-    OXY  = "oxy"
-    BEAR = "bear"
-    OWL  = "owl"
-
 class User(Base):
     __tablename__ = "users"
+    id = Column(UUID, primary_key=True)
+    email = Column(String, unique=True)
+    nickname = Column(String, unique=True)
+    role = Column(Enum(Role))
+    avatar = Column(String, nullable=True)
+    bio = Column(Text, nullable=True)
+    privacy = Column(String, default="public")
 
-    id        = Column(String, primary_key=True)   # UUID
-    username  = Column(String, unique=True, nullable=False)
-    email     = Column(String, unique=True, nullable=False)
-    password  = Column(String, nullable=False)      # bcrypt hash
-    side      = Column(Enum(Side), nullable=False)
-    level     = Column(Integer, default=1)
-    shards    = Column(Integer, default=100)        # Валюта — Осколки
-    energy    = Column(Integer, default=100)        # Лимит действий в день
-    is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+class GameProfile(Base):
+    __tablename__ = "game_profiles"
+    user_id = Column(UUID, ForeignKey("users.id"), unique=True)
+    archetype = Column(Enum(Archetype), nullable=True)
+    level = Column(Integer, default=1)
+    xp = Column(Integer, default=0)
+    shards = Column(Integer, default=100)
+    energy = Column(Integer, default=100)
 
-class Transaction(Base):
-    __tablename__ = "transactions"
-
-    id         = Column(Integer, primary_key=True, autoincrement=True)
-    from_user  = Column(String, ForeignKey("users.id"))
-    to_user    = Column(String, ForeignKey("users.id"), nullable=True)
-    amount     = Column(Integer, nullable=False)
-    reason     = Column(String)                     # "tax", "skill", "quest"
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-
-class Ban(Base):
-    __tablename__ = "bans"
-
-    id         = Column(Integer, primary_key=True, autoincrement=True)
-    target_id  = Column(String, ForeignKey("users.id"))
-    issued_by  = Column(String, ForeignKey("users.id"))
-    expires_at = Column(DateTime(timezone=True))
-    reason     = Column(String, default="Bear tax enforcement")
+class Message(Base):
+    __tablename__ = "messages"
+    sender_id = Column(UUID, ForeignKey("users.id"))
+    room = Column(String(64), default="general")
+    text = Column(Text)
+    is_anonymous = Column(Boolean, default=False)
+    effect = Column(String(32), nullable=True)
+    effect_payload = Column(Text, nullable=True)
 ```
 
 ---
 
-## schemas.py (Pydantic DTO)
+## DTO (Pydantic)
 
 ```python
-from pydantic import BaseModel, EmailStr
-from enum import Enum
-from datetime import datetime
-
-class SideEnum(str, Enum):
-    FOXY = "foxy"
-    OXY  = "oxy"
-    BEAR = "bear"
-    OWL  = "owl"
-
-# ── Входящие (от клиента) ──────────────────────
-class UserCreate(BaseModel):
-    username: str
-    email: EmailStr
-    password: str
-    side: SideEnum
-
-class UserLogin(BaseModel):
-    email: EmailStr
-    password: str
-
-# ── Исходящие (клиенту) ────────────────────────
-class UserResponse(BaseModel):
-    id: str
-    username: str
-    side: SideEnum
+class GameProfileResponse(BaseModel):
+    id: UUID
+    archetype: Archetype | None
     level: int
+    xp: int
     shards: int
     energy: int
 
-    class Config:
-        from_attributes = True
-
-# ── Транзакции ─────────────────────────────────
-class TransactionResponse(BaseModel):
-    id: int
-    from_user: str
-    to_user: str | None
-    amount: int
-    reason: str
-    created_at: datetime
-
-    class Config:
-        from_attributes = True
+class MessageResponse(BaseModel):
+    id: UUID
+    sender_id: UUID | None
+    sender_nickname: str | None
+    sender_archetype: Archetype | None
+    room: str
+    text: str
+    is_anonymous: bool
 ```
 
 ---
@@ -142,7 +93,3 @@ DTO (Data Transfer Object) — простой объект **только для
 :::info Следующий шаг
 Настрой [миграции через Alembic](./migrations) чтобы безопасно изменять схему в продакшне.
 :::
-
-
-
-

@@ -1,22 +1,46 @@
 ﻿# app/game/router.py
 
+import json
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from uuid import UUID
-
 from app.database import get_session
 from app.auth.dependencies import get_current_user
 from app.users.models import User
 from app.game.service import GameService
 from app.game.schemas import GameProfileResponse, ChooseArchetypeDto, TargetDto, WhisperDto
 from app.game.models import Archetype
-from app.chat.effects import set_effect
+from app.game.relations import get_relation, RelationType
+from app.chat.effects import set_effect, is_active
+from app.chat.service import ChatService
+from app.chat.schemas import MessageCreate
 
 router = APIRouter(prefix="/game", tags=["Game"])
 
 
 def get_game_service(session: AsyncSession = Depends(get_session)) -> GameService:
     return GameService(session)
+
+
+def get_chat_service(session: AsyncSession = Depends(get_session)) -> ChatService:
+    return ChatService(session)
+
+
+def _require_archetype(profile, archetype: Archetype, detail: str) -> None:
+    if profile.archetype != archetype:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=detail)
+
+
+def _require_target_archetype(target, detail: str) -> None:
+    if target.archetype is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
+
+
+def _require_counter_relation(source, target, detail: str) -> None:
+    if source.archetype is None or target.archetype is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
+    if get_relation(source.archetype, target.archetype) != RelationType.COUNTER:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
 
 
 @router.get("/profile", response_model=GameProfileResponse)
@@ -47,7 +71,7 @@ async def interact(
     visitor = await service.get_or_create_profile(current_user.id)
     target = await service.get_or_create_profile(dto.target_id)
 
-    # Налог Медведя: Wolf → Fox
+    # Налог Медведя: OXY → FOXY
     if visitor.archetype == Archetype.OXY and target.archetype == Archetype.FOXY:
         tax = 10
         if visitor.shards < tax:
@@ -68,12 +92,16 @@ async def skill_glitch(
     service: GameService = Depends(get_game_service),
 ):
     profile = await service.get_or_create_profile(current_user.id)
-    if profile.archetype != Archetype.FOXY:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Только Лиса может глючить экраны")
+    _require_archetype(profile, Archetype.FOXY, "Только Лиса может глючить экраны")
+    target = await service.get_or_create_profile(dto.target_id)
+    _require_target_archetype(target, "Цель ещё не выбрала архетип")
+    _require_counter_relation(profile, target, "Глитч работает только против OXY")
+    if is_active(dto.target_id, "shield"):
+        raise HTTPException(status_code=400, detail="Цель под Золотым Щитом")
     await service.spend_shards(profile, 15)
     set_effect(dto.target_id, "glitch", 30)
     await service.session.commit()
-    return {"msg": "Экран Волка заглючен на 30 секунд.", "shards_spent": 15}
+    return {"msg": "Экран цели заглючен на 30 секунд.", "shards_spent": 15}
 
 
 @router.post("/skills/direct_strike")
@@ -83,10 +111,13 @@ async def skill_direct_strike(
     service: GameService = Depends(get_game_service),
 ):
     profile = await service.get_or_create_profile(current_user.id)
-    if profile.archetype != Archetype.OXY:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Только Волк может бить напрямую")
-    await service.spend_shards(profile, 5)
+    _require_archetype(profile, Archetype.OXY, "Только Волк может бить напрямую")
     target = await service.get_or_create_profile(dto.target_id)
+    _require_target_archetype(target, "Цель ещё не выбрала архетип")
+    _require_counter_relation(profile, target, "Прямой удар работает только против BEAR")
+    if is_active(dto.target_id, "shield"):
+        raise HTTPException(status_code=400, detail="Цель под Золотым Щитом")
+    await service.spend_shards(profile, 5)
     target.xp = max(0, target.xp - 5)
     await service.session.commit()
     return {"msg": "Прямой удар нанесён. Противник потерял 5 XP.", "shards_spent": 5}
@@ -98,9 +129,9 @@ async def skill_golden_shield(
     service: GameService = Depends(get_game_service),
 ):
     profile = await service.get_or_create_profile(current_user.id)
-    if profile.archetype != Archetype.BEAR:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Только Медведь ставит щит")
+    _require_archetype(profile, Archetype.BEAR, "Только Медведь ставит щит")
     await service.spend_shards(profile, 20)
+    set_effect(current_user.id, "shield", 300)
     await service.session.commit()
     return {"msg": "Золотой щит активирован на 5 минут.", "shards_spent": 20}
 
@@ -112,10 +143,13 @@ async def skill_ban(
     service: GameService = Depends(get_game_service),
 ):
     profile = await service.get_or_create_profile(current_user.id)
-    if profile.archetype != Archetype.BEAR:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Только Медведь может блокировать порт")
-    await service.spend_shards(profile, 30)
+    _require_archetype(profile, Archetype.BEAR, "Только Медведь может блокировать порт")
     target = await service.get_or_create_profile(dto.target_id)
+    _require_target_archetype(target, "Цель ещё не выбрала архетип")
+    _require_counter_relation(profile, target, "Блокировка работает только против FOXY")
+    if is_active(dto.target_id, "shield"):
+        raise HTTPException(status_code=400, detail="Цель под Золотым Щитом")
+    await service.spend_shards(profile, 30)
     target.energy = max(0, target.energy - 10)
     set_effect(dto.target_id, "ban", 60)
     await service.session.commit()
@@ -127,10 +161,25 @@ async def skill_whisper(
     dto: WhisperDto,
     current_user: User = Depends(get_current_user),
     service: GameService = Depends(get_game_service),
+    chat: ChatService = Depends(get_chat_service),
 ):
     profile = await service.get_or_create_profile(current_user.id)
-    if profile.archetype != Archetype.OWL:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Только Сова может шептать")
+    _require_archetype(profile, Archetype.OWL, "Только Сова может шептать")
     await service.spend_shards(profile, 20)
+
+    payload = json.dumps({"target_id": str(dto.target_id)})
+    msg = await chat.send_message(
+        current_user,
+        MessageCreate(text=dto.message, room=dto.room),
+        is_anonymous=True,
+        effect="whisper",
+        effect_payload=payload,
+    )
+    await chat.session.commit()
     await service.session.commit()
-    return {"msg": "Шёпот отправлен анонимно.", "shards_spent": 20, "payload": {"to": str(dto.target_id), "text": dto.message}}
+    return {
+        "msg": "Шёпот отправлен анонимно.",
+        "shards_spent": 20,
+        "payload": {"to": str(dto.target_id), "message_id": str(msg.id)},
+    }
+

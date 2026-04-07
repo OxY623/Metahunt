@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -79,6 +79,12 @@ export default function DashboardPage() {
               onClick={() => router.push("/password")}
             >
               Сменить пароль
+            </Button>            <Button
+              variant="neutral"
+              size="sm"
+              onClick={() => router.push("/codex")}
+            >
+              Кодекс / Правила
             </Button>
           </div>
         </Panel>

@@ -23,6 +23,10 @@ import { Button } from "../../shared/ui/Button";
 import { useSession } from "../../shared/model/session";
 import LoadingScreen from "../../shared/ui/LoadingScreen";
 import { SiteHeader } from "../../widgets/site/SiteHeader";
+import {
+  getArchetypeRelation,
+  type RelationType,
+} from "../../entities/user/lib/archetypes";
 
 const POLL_INTERVAL_MS = 3000;
 
@@ -43,6 +47,19 @@ const ARCHETYPE_THEME: Record<Archetype, { accent: string; border: string }> = {
   OWL: { accent: "text-purple-300", border: "border-purple-300/40" },
 };
 
+const RELATION_LABELS: Record<RelationType, string> = {
+  ally: "Союз",
+  counter: "Контр",
+  neutral: "Нейтрал",
+  trade: "Торг",
+};
+
+type SelectedTarget = {
+  id: string;
+  nickname: string | null;
+  archetype?: Archetype | null;
+};
+
 export default function ChatPage() {
   const router = useRouter();
   const { token, user, loading: sessionLoading } = useSession();
@@ -53,7 +70,7 @@ export default function ChatPage() {
   const [room, setRoom] = useState<(typeof ROOMS)[number]>("general");
   const [profile, setProfile] = useState<GameProfileResponse | null>(null);
   const [effects, setEffects] = useState<ChatEffect[]>([]);
-  const [targetId, setTargetId] = useState("");
+  const [target, setTarget] = useState<SelectedTarget | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const fetchRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -127,32 +144,52 @@ export default function ChatPage() {
 
   const isGlitched = effects.some((e) => e.effect === "glitch");
   const isBanned = effects.some((e) => e.effect === "ban");
+  const isShielded = effects.some((e) => e.effect === "shield");
+
+  const targetRelation = getArchetypeRelation(
+    profile?.archetype ?? null,
+    target?.archetype ?? null
+  );
+
+  const canTarget = Boolean(target?.id);
+  const canGlitch =
+    profile?.archetype === "FOXY" &&
+    target?.archetype === "OXY" &&
+    targetRelation === "counter";
+  const canStrike =
+    profile?.archetype === "OXY" &&
+    target?.archetype === "BEAR" &&
+    targetRelation === "counter";
+  const canBan =
+    profile?.archetype === "BEAR" &&
+    target?.archetype === "FOXY" &&
+    targetRelation === "counter";
+  const canWhisper = profile?.archetype === "OWL" && canTarget;
 
   const handleSkill = async (
     skill: "glitch" | "strike" | "shield" | "ban" | "whisper",
   ) => {
     if (!token || !profile?.archetype) return;
-    if (
-      (skill === "glitch" ||
-        skill === "strike" ||
-        skill === "ban" ||
-        skill === "whisper") &&
-      !targetId
-    ) {
-      setError("Нужен ID цели");
+    if ((skill === "glitch" || skill === "strike" || skill === "ban") && !canTarget) {
+      setError("Выбери цель кликом по сообщению");
+      return;
+    }
+    if (skill === "whisper" && (!canTarget || !input.trim())) {
+      setError("Нужны цель и текст для шёпота");
       return;
     }
     setError(null);
     try {
-      if (skill === "glitch") await glitchScreen(token, targetId);
-      if (skill === "strike") await directStrike(token, targetId);
+      if (skill === "glitch" && target) await glitchScreen(token, target.id);
+      if (skill === "strike" && target) await directStrike(token, target.id);
       if (skill === "shield") await goldenShield(token);
-      if (skill === "ban") await banPort(token, targetId);
-      if (skill === "whisper")
-        await whisper(token, targetId, input.trim() || "...");
+      if (skill === "ban" && target) await banPort(token, target.id);
+      if (skill === "whisper" && target)
+        await whisper(token, target.id, input.trim(), room);
       await fetchEffects();
       await fetchMessages();
-      setTargetId("");
+      if (skill !== "shield") setTarget(null);
+      if (skill === "whisper") setInput("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Ошибка навыка");
     }
@@ -223,6 +260,11 @@ export default function ChatPage() {
             Порт заблокирован на 1 минуту.
           </div>
         )}
+        {isShielded && (
+          <div className="mb-4 cyber-border-cyan bg-brand-cyan/10 text-brand-cyan px-3 py-2 rounded text-xs">
+            Золотой щит активен: тебя нельзя контрить 5 минут.
+          </div>
+        )}
 
         <div className="mb-4 flex gap-2 flex-wrap">
           {ROOMS.map((r) => (
@@ -248,6 +290,7 @@ export default function ChatPage() {
                   variant="pink"
                   size="sm"
                   onClick={() => handleSkill("glitch")}
+                  disabled={!canGlitch}
                 >
                   Глитч экрана
                 </Button>
@@ -257,6 +300,7 @@ export default function ChatPage() {
                   variant="cyan"
                   size="sm"
                   onClick={() => handleSkill("strike")}
+                  disabled={!canStrike}
                 >
                   Прямой удар
                 </Button>
@@ -274,6 +318,7 @@ export default function ChatPage() {
                     variant="warning"
                     size="sm"
                     onClick={() => handleSkill("ban")}
+                    disabled={!canBan}
                   >
                     Блокировка порта
                   </Button>
@@ -284,20 +329,38 @@ export default function ChatPage() {
                   variant="neutral"
                   size="sm"
                   onClick={() => handleSkill("whisper")}
+                  disabled={!canWhisper || !input.trim()}
                 >
                   Шёпот (DM)
                 </Button>
               )}
             </div>
-            <div className="mt-2">
-              <Input
-                type="text"
-                value={targetId}
-                onChange={(e) => setTargetId(e.target.value)}
-                placeholder="ID цели"
-                className="text-xs"
-              />
+            <div className="mt-2 text-xs text-text-dim">
+              Выбери цель кликом по сообщению. Навыки активируются без ввода UID.
             </div>
+            {target && (
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                <span className="text-text-dim">Цель:</span>
+                <span className="text-text-primary">
+                  {target.nickname ?? "Аноним"}
+                </span>
+                {target.archetype && (
+                  <span className="text-text-dim border border-meta-border px-1.5 py-0.5 rounded">
+                    {target.archetype}
+                  </span>
+                )}
+                <span className="text-text-dim">
+                  Связь: {RELATION_LABELS[targetRelation]}
+                </span>
+                <Button
+                  variant="neutral"
+                  size="sm"
+                  onClick={() => setTarget(null)}
+                >
+                  Сброс
+                </Button>
+              </div>
+            )}
           </div>
         )}
 
@@ -312,6 +375,8 @@ export default function ChatPage() {
               key={m.id}
               message={m}
               isOwn={!m.is_anonymous && m.sender_id === user.id}
+              onSelectTarget={(t) => setTarget(t)}
+              isSelected={target?.id === m.sender_id}
             />
           ))}
         </div>
@@ -350,3 +415,4 @@ export default function ChatPage() {
     </main>
   );
 }
+

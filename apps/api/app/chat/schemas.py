@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 from uuid import UUID
 from datetime import datetime
 from typing import Optional
+from app.game.models import Archetype
 
 
 class MessageCreate(BaseModel):
@@ -15,6 +16,7 @@ class MessageResponse(BaseModel):
     id: UUID
     sender_id: Optional[UUID]  # None для анонимных (Whisper)
     sender_nickname: Optional[str]  # None для анонимных
+    sender_archetype: Optional[Archetype] = None
     room: str
     text: str
     is_anonymous: bool

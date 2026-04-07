@@ -1,4 +1,4 @@
-﻿---
+---
 id: user-stories
 title: User Stories
 sidebar_label: User Stories

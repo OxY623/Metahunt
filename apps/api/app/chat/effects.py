@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Dict, Literal
 from uuid import UUID
 
-EffectType = Literal["glitch", "ban"]
+EffectType = Literal["glitch", "ban", "shield"]
 
 # In-memory effect registry. This is MVP-friendly and avoids schema changes.
 # It resets on server restart and is per-process.
@@ -45,3 +45,4 @@ def get_effects_payload(user_id: UUID) -> list[dict]:
             }
         )
     return payload
+

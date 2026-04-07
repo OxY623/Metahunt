@@ -1,4 +1,4 @@
-﻿export type AdminProtocolPanel = {
+export type AdminProtocolPanel = {
   id: string;
   title: string;
   subtitle?: string;
@@ -10,81 +10,90 @@
 
 export const ADMIN_PROTOCOL_PANELS: AdminProtocolPanel[] = [
   {
-    id: "title",
-    title: "Пролог истории",
-    subtitle: "MetaHunt — город скрытых войн.",
+    id: "purpose",
+    title: "Пролог: зачем это всё",
+    subtitle: "MetaHunt — антисоциальная игровая платформа, контр‑инста.",
     imageSrc: "/prolog/1-prolog.png",
     imageAlt:
       "Cyberpunk city at night with a holographic network map above skyscrapers.",
     quote:
-      "Админ открыл охоту. Город проснулся. Волк в ярости. Но в лоб Медведя не взять. Теперь ему придётся обратиться к тому, кому он меньше всего доверяет — Сове.",
+      "Здесь не собирают лайки и не строят витрины. Здесь строят влияние, связи и реальную силу. MetaHunt — игра про выбор, риск и последствия."
   },
   {
-    id: "network",
-    title: "Мир фракций",
-    subtitle: "В MetaHunt есть 4 фракции.",
+    id: "story",
+    title: "История города",
+    subtitle: "Старый протокол сгорел. Остались люди и правила.",
     imageSrc: "/prolog/2-prolog.png",
     imageAlt: "Rooftop, neon reflections, holographic network map.",
     quote:
-      "Каждая — это: свой стиль игры свои способности своя стратегия власти Выбор необратим. Админ фиксирует твой выбор.",
+      "Город стал сетью закрытых комнат и коротких встреч. Админ не правит напрямую — он задаёт рамки, остальное решают игроки. Ты входишь как гость. Архетип выбираешь, когда готов."
   },
   {
-    id: "lesson",
-    title: "Матрица противостояний",
-    subtitle: "Баланс сил в городе:",
+    id: "anti-social",
+    title: "Контр‑инста: как устроено",
+    subtitle: "Меньше шума — больше смысла.",
     imageSrc: "/prolog/3-prolog.png",
     imageAlt: "Holographic terminal with code lines ADAPT, SURVIVE, EVOLVE.",
     quote:
-      "🦊 FOXY → контрит OXY 🐻 BEAR → контрит FOXY 🐺 OXY → контрит BEAR 🦉 OWL → продаёт компромат на всех  Иногда сила — это не атака. Иногда сила — информация.",
-    code: ["ADAPT()", "SURVIVE()", "EVOLVE()"],
+      "Нет ленты для самопрезентации. Есть события, комнаты и решения. Репутация — это поступки. Валюта — Shards. Ошибка — это потеря доступа."
   },
   {
-    id: "choice",
-    title: "Фракция Волка (OXY)",
-    subtitle: "🐺 OXY — Волк",
+    id: "matrix",
+    title: "Матрица противостояний",
+    subtitle: "Баланс сил в городе:",
     imageSrc: "/prolog/4-prolog.png",
     imageAlt: "Terminal screen with META CORE ACCESS and SEED PHRASE DETECTED.",
     quote:
-      "Архетип: одинокая месть и правда Цвет: Графит и серебро #8B949E  Сила: ⚔️ Прямой удар — списывает XP без комиссии Слабость: 💀 Уязвим к Золотому Щиту Медведя",
-    code: ["META CORE ACCESS", "SEED PHRASE DETECTED"],
+      "🦊 FOXY → контрит OXY  🐻 BEAR → контрит FOXY  🐺 OXY → контрит BEAR  🦉 OWL → торгует данными со всеми. Сила — это не только атака, иногда сила — информация.",
+    code: ["ADAPT()", "SURVIVE()", "EVOLVE()"],
   },
   {
-    id: "fracture",
-    title: "Способности Волка",
+    id: "oxy",
+    title: "Архетип: Волк (OXY)",
+    subtitle: "Стратегия, давление, прямой удар.",
     imageSrc: "/prolog/5-prolog.png",
     imageAlt: "Network core cracking on a holographic map, data shards flying.",
-    quote: "«Иногда систему нужно сломать… чтобы она стала свободной.»",
-    code: ["NETWORK FRACTURE"],
+    quote:
+      "Правила: 1) Играешь в лоб, но только по контр‑связи. 2) Сила — в темпе: навязывай ритм. 3) Не лезь под Золотой Щит Медведя. Подсказки: выбирай цели с низкой защитой и короткими окнами. Работай парой с Совами, чтобы видеть риск заранее.",
+    code: ["PRESSURE", "TIMING", "COUNTER"],
   },
   {
-    id: "shards",
-    title: "Осколки",
+    id: "foxy",
+    title: "Архетип: Лиса (FOXY)",
+    subtitle: "Социальный взлом, хитрость, скорость.",
     imageSrc: "/prolog/6-prolog.png",
     imageAlt: "City covered with digital anomalies; SHARDS DETECTED.",
-    quote: "«Теперь охота началась.»",
-    code: ["SHARDS DETECTED"],
+    quote:
+      "Правила: 1) Работаешь из тени, контришь OXY. 2) Не сжигай репутацию — ты живёшь на доверии. 3) Собирай осколки там, где шум. Подсказки: действуй быстро и коротко, используй анонимные входы, всегда имей план отхода.",
+    code: ["STEALTH", "SPEED", "TRUST"],
   },
   {
-    id: "new-user",
-    title: "Игрок",
+    id: "bear",
+    title: "Архетип: Медведь (BEAR)",
+    subtitle: "Ресурсы, блокировки, контроль.",
     imageSrc: "/foxy-protocol/panel-06.svg",
     imageAlt: "Terminal screen: NEW USER CONNECTED.",
-    quote: "«Админ видит тебя.»",
-    code: ["NEW USER CONNECTED"],
+    quote:
+      "Правила: 1) Играешь от экономики — кто платит, тот живёт. 2) Контришь FOXY, но не гонись за скоростью. 3) Держи оборону и не распыляйся. Подсказки: фиксируй точки входа, навязывай комиссии, выжидай, когда враг откроется.",
+    code: ["CONTROL", "TAX", "HOLD"],
   },
   {
-    id: "protocol",
-    title: "Admin Protocol",
+    id: "owl",
+    title: "Архетип: Сова (OWL)",
+    subtitle: "Информация, сделки, нейтралитет.",
     imageSrc: "/foxy-protocol/panel-07.svg",
     imageAlt: "Glitched terminal mantra with neon mark and flickering panels.",
-    quote: "«TRUST = FALSE. SURVIVAL = TRUE.»",
-    code: ["A D A P T", "A D A P T", "A D A P T"],
+    quote:
+      "Правила: 1) Ты не фронт — ты тень. 2) Торгуй данными, не давай обещаний. 3) Нейтралитет — это ресурс. Подсказки: держи много слабых связей, продавай доступ точечно, всегда оставляй выход.",
+    code: ["INTEL", "DEAL", "NEUTRAL"],
   },
   {
-    id: "enter",
-    title: "Enter The Hunt",
+    id: "entry",
+    title: "Вход в охоту",
+    subtitle: "Выбор архетипа — точка невозврата.",
     imageSrc: "/foxy-protocol/panel-08.svg",
     imageAlt: "City horizon with a neon gateway.",
-    quote: "«Если ты читаешь это — значит сеть уже нашла тебя.»",
+    quote:
+      "Если ты читаешь это — сеть уже нашла тебя. Пролог закончен. Дальше — твои решения."
   },
 ];

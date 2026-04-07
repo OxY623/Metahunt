@@ -1,6 +1,4 @@
-# app/chat/service.py
-
-from uuid import UUID
+﻿# app/chat/service.py
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,7 +15,7 @@ class ChatService:
     async def list_messages(self, room: str = "general", limit: int = 100, offset: int = 0) -> list[Message]:
         stmt = (
             select(Message)
-            .options(selectinload(Message.sender))
+            .options(selectinload(Message.sender).selectinload(User.game_profile))
             .where(Message.room == room)
             .order_by(Message.created_at.desc())
             .limit(limit)
@@ -26,7 +24,14 @@ class ChatService:
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
-    async def send_message(self, sender: User, dto: MessageCreate, is_anonymous: bool = False, effect: str | None = None, effect_payload: str | None = None) -> Message:
+    async def send_message(
+        self,
+        sender: User,
+        dto: MessageCreate,
+        is_anonymous: bool = False,
+        effect: str | None = None,
+        effect_payload: str | None = None,
+    ) -> Message:
         msg = Message(
             sender_id=sender.id,
             room=dto.room,
@@ -43,10 +48,14 @@ class ChatService:
     def to_response(self, msg: Message) -> MessageResponse:
         sender_nickname = None if msg.is_anonymous else (msg.sender.nickname if msg.sender else None)
         sender_id = None if msg.is_anonymous else msg.sender_id
+        sender_archetype = None
+        if not msg.is_anonymous and msg.sender and msg.sender.game_profile:
+            sender_archetype = msg.sender.game_profile.archetype
         return MessageResponse(
             id=msg.id,
             sender_id=sender_id,
             sender_nickname=sender_nickname,
+            sender_archetype=sender_archetype,
             room=msg.room,
             text=msg.text,
             is_anonymous=msg.is_anonymous,
@@ -54,3 +63,4 @@ class ChatService:
             effect_payload=msg.effect_payload,
             created_at=msg.created_at,
         )
+

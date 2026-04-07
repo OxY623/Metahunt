@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -66,6 +66,9 @@ export default function IntroPage() {
         </div>
 
         <div className="flex items-center justify-center gap-3">
+          <Button variant="neutral" size="sm" onClick={() => router.push("/codex")}>
+            Кодекс / Правила
+          </Button>
           <Button variant="neutral" size="sm" onClick={handleComplete}>
             Пропустить
           </Button>

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+﻿from pydantic import BaseModel, Field
 from uuid import UUID
 from typing import Optional
 from app.game.models import Archetype
@@ -54,6 +54,4 @@ class TargetDto(BaseModel):
 
 class WhisperDto(TargetDto):
     message: str = Field(..., min_length=1, max_length=500)
-
-
-
+    room: str = Field(default="general", min_length=1, max_length=64)
