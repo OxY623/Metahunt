@@ -1,17 +1,25 @@
-﻿import Image from "next/image";
-import type { Archetype } from "../../../lib/api";
+﻿import type { Archetype } from "../../../lib/api";
 import { ARCHETYPE_IMAGES } from "../lib/archetypes";
 import { cn } from "../../../shared/lib/cn";
 
 type Props = {
   archetype?: Archetype | null;
+  avatarUrl?: string | null;
   size?: number;
   className?: string;
   alt?: string;
 };
 
-export function UserAvatar({ archetype, size = 72, className, alt }: Props) {
-  const src = archetype ? ARCHETYPE_IMAGES[archetype] : "/users/FOXY.png";
+export function UserAvatar({
+  archetype,
+  avatarUrl,
+  size = 72,
+  className,
+  alt,
+}: Props) {
+  const src =
+    avatarUrl?.trim() ||
+    (archetype ? ARCHETYPE_IMAGES[archetype] : "/users/FOXY.png");
   return (
     <div
       className={cn(
@@ -20,13 +28,13 @@ export function UserAvatar({ archetype, size = 72, className, alt }: Props) {
       )}
       style={{ width: size, height: size }}
     >
-      <Image
+      <img
         src={src}
-        alt={alt ?? "User archetype"}
-        fill
-        className="object-cover"
+        alt={alt ?? "Аватар пользователя"}
+        className="h-full w-full object-cover"
+        loading="lazy"
+        decoding="async"
       />
     </div>
   );
 }
-

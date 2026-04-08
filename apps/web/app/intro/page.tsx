@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import AdminProtocolComic from "../../widgets/foxy/AdminProtocolComic";
 import AdminGlitchTerminal from "../../widgets/foxy/AdminGlitchTerminal";
 import { SectionHeading } from "../../shared/ui/SectionHeading";
@@ -16,7 +16,9 @@ import LoadingScreen from "../../shared/ui/LoadingScreen";
 
 export default function IntroPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, token, loading } = useSession();
+  const forceIntro = searchParams.get("force") === "1";
 
   useEffect(() => {
     if (loading) return;
@@ -24,10 +26,10 @@ export default function IntroPage() {
       router.replace("/");
       return;
     }
-    if (user && (!isIntroPending() || hasSeenIntro(user.id))) {
+    if (!forceIntro && user && (!isIntroPending() || hasSeenIntro(user.id))) {
       router.replace("/dashboard");
     }
-  }, [token, user, loading, router]);
+  }, [token, user, loading, router, forceIntro]);
 
   if (loading) {
     return <LoadingScreen />;
@@ -77,4 +79,6 @@ export default function IntroPage() {
     </main>
   );
 }
+
+
 

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
@@ -16,7 +16,7 @@ import { AudioController } from "./AudioController";
 
 const PRIMARY_LINKS = [
   { href: "/", label: "Главная" },
-  { href: "/dashboard", label: "Dashboard" },
+  { href: "/dashboard", label: "Панель" },
   { href: "/codex", label: "Кодекс" },
   { href: "/chat", label: "Чат" },
   { href: "/settings", label: "Настройки" },
@@ -25,7 +25,7 @@ const PRIMARY_LINKS = [
 const SECONDARY_LINKS = [
   { href: "/profile", label: "Профиль" },
   { href: "/password", label: "Пароль" },
-  { href: "/intro", label: "Пролог" },
+  { href: "/intro?force=1", label: "Пролог" },
   { href: "/legal/privacy", label: "Персональные данные" },
   { href: "/legal/terms", label: "Соглашение" },
 ];
@@ -83,7 +83,7 @@ export function SiteHeader() {
         <div className="p-6 space-y-6">
           <div className="flex items-center justify-between">
             <div className="text-xs uppercase tracking-[0.3em] text-text-dim">
-              System Menu
+              Системное меню
             </div>
             <Button size="sm" variant="neutral" onClick={() => setMenuOpen(false)}>
               Закрыть
@@ -91,7 +91,11 @@ export function SiteHeader() {
           </div>
 
           <div className="flex items-center gap-3">
-            <UserAvatar archetype={profile?.archetype ?? null} avatarUrl={user?.avatar ?? null} size={56} />
+            <UserAvatar
+              archetype={profile?.archetype ?? null}
+              avatarUrl={user?.avatar ?? null}
+              size={56}
+            />
             <div>
               <div className="text-sm uppercase tracking-wider text-text-primary">
                 {user?.nickname ?? "Гость"}
@@ -183,7 +187,7 @@ export function SiteHeader() {
               METAHUNT
             </Link>
             <span
-              className={`inline-flex shrink-2 h-2.5 w-2.5 rounded-full ${status === "ok"
+              className={`inline-flex shrink-0 h-2.5 w-2.5 rounded-full ${status === "ok"
                 ? "bg-state-success animate-pulse"
                 : status === "error"
                   ? "bg-state-danger"
@@ -192,7 +196,7 @@ export function SiteHeader() {
               title={`API: ${status}`}
             />
             <span className="hidden md:inline text-xs uppercase tracking-[0.2em] text-text-dim hover:text-brand-pink/80 transition-colors duration-300 ease-out">
-              Admin Watching
+              Админ наблюдает
             </span>
           </div>
 

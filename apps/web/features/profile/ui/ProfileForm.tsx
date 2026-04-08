@@ -49,38 +49,62 @@ export function ProfileForm({ token, user, onUpdated }: Props) {
     <Panel className="space-y-4">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs text-text-muted mb-1 uppercase tracking-wider">
-            Nickname
-          </label>
-          <Input name="nickname" defaultValue={user.nickname} />
-        </div>
-        <div>
-          <label className="block text-xs text-text-muted mb-1 uppercase tracking-wider">
-            Avatar URL
+          <label
+            htmlFor="profile-nickname"
+            className="block text-xs text-text-muted mb-1 uppercase tracking-wider"
+          >
+            Никнейм
           </label>
           <Input
-            name="avatar"
-            defaultValue={user.avatar ?? ""}
-            placeholder="https://..."
+            id="profile-nickname"
+            name="nickname"
+            autoComplete="nickname"
+            defaultValue={user.nickname}
           />
         </div>
         <div>
-          <label className="block text-xs text-text-muted mb-1 uppercase tracking-wider">
-            Bio
+          <label
+            htmlFor="profile-avatar"
+            className="block text-xs text-text-muted mb-1 uppercase tracking-wider"
+          >
+            URL аватара
+          </label>
+          <Input
+            id="profile-avatar"
+            name="avatar"
+            type="url"
+            defaultValue={user.avatar ?? ""}
+            placeholder="https://..."
+          />
+          <p className="mt-1 text-[11px] text-text-dim">
+            Можно указать ссылку на изображение 1:1.
+          </p>
+        </div>
+        <div>
+          <label
+            htmlFor="profile-bio"
+            className="block text-xs text-text-muted mb-1 uppercase tracking-wider"
+          >
+            О себе
           </label>
           <textarea
+            id="profile-bio"
             name="bio"
             defaultValue={user.bio ?? ""}
             rows={4}
-            className="aug-input w-full px-4 py-3 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/30"
+            className="aug-input w-full min-h-[120px] px-4 py-3 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/30 resize-y"
             placeholder="Короткое описание..."
           />
         </div>
         <div>
-          <label className="block text-xs text-text-muted mb-1 uppercase tracking-wider">
+          <label
+            htmlFor="profile-privacy"
+            className="block text-xs text-text-muted mb-1 uppercase tracking-wider"
+          >
             Приватность
           </label>
           <select
+            id="profile-privacy"
             name="privacy"
             defaultValue={user.privacy ?? "public"}
             className="aug-input w-full px-4 py-3 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/30"
@@ -93,7 +117,11 @@ export function ProfileForm({ token, user, onUpdated }: Props) {
           </select>
         </div>
         {error && (
-          <div className="text-xs text-brand-pink border border-brand-pink/40 px-3 py-2 rounded">
+          <div
+            role="alert"
+            aria-live="polite"
+            className="text-xs text-brand-pink border border-brand-pink/40 px-3 py-2 rounded"
+          >
             {error}
           </div>
         )}
