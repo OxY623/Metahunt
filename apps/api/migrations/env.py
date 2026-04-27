@@ -6,10 +6,14 @@ from alembic import context
 
 from app.config import settings
 from app.database import Base
-from app.users.models import User  # импортируйте все ваши модели
+from app.users.models import User
 from app.auth.models import RefreshToken
 from app.game.models import GameProfile
 from app.chat.models import Message
+from app.economy.models import ShardLedger
+from app.invites.models import Invite
+from app.map.models import GeoTile, GeoEvent
+from app.posts.models import Post, PostMedia
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)

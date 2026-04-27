@@ -59,6 +59,15 @@ class GameProfile(Base):
     shards      = Column(Integer, default=100, nullable=False)  # Внутриигровая валюта (осколки)
     energy      = Column(Integer, default=100, nullable=False)  # Лимит действий в день
 
+    # --- Инвайты ---
+    invite_balance = Column(Integer, default=0, nullable=False)
+    invite_daily_used = Column(Integer, default=0, nullable=False)
+    invite_last_reset_at = Column(DateTime, nullable=True)
+
+    # --- Гео ---
+    geo_visibility = Column(String, default="approx", nullable=False)
+    last_geo_tile = Column(String(16), nullable=True)
+
     created_at   = Column(DateTime, default=datetime.utcnow)
     updated_at   = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

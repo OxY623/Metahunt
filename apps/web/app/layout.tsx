@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Orbitron, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import "leaflet/dist/leaflet.css";
 import { SiteChrome } from "../widgets/site/SiteChrome";
 
 const orbitron = Orbitron({
@@ -82,3 +83,5 @@ export default function RootLayout({
     </html>
   );
 }
+
+

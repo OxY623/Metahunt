@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { SiteFooter } from "./SiteFooter";
+import { CookieNotice } from "./CookieNotice";
 import { useSession } from "../../shared/model/session";
 import { useGameProfile } from "../../shared/model/game-profile";
 
@@ -38,6 +39,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
     >
       <div className="scanlines" aria-hidden />
       <div className="flex-1">{children}</div>
+      <CookieNotice />
       {showFooter && <SiteFooter />}
     </div>
   );

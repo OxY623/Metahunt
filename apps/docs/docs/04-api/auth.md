@@ -10,16 +10,16 @@ tags: [fastapi, auth, jwt, security]
 # Авторизация (JWT)
 
 :::note Статус
-🚧 В разработке — будет добавлено в Фазе 2
+✅ Спецификация v0.1 (MVP). Реализация в коде — далее.
 :::
 
 ## Что будет реализовано
 
-- Регистрация с выбором фракции
-- Хеширование пароля через `bcrypt`
-- Выдача JWT access token при логине
-- Защищённые роуты через `Depends(get_current_user)`
-- Refresh token механика
+- Регистрация только по инвайту.
+- Хеширование пароля через `bcrypt`.
+- Выдача JWT access token при логине.
+- Защищённые роуты через `Depends(get_current_user)`.
+- Выбор архетипа отдельным эндпоинтом после регистрации.
 
 ---
 
@@ -32,6 +32,8 @@ pip install python-jose[cryptography] passlib[bcrypt]
 ---
 
 ## Регистрация — эндпоинт
+
+Требуется валидный `invite_code`.
 
 ```python
 # routers/auth.py
@@ -48,12 +50,13 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 @router.post("/register", response_model=UserResponse)
 async def register(data: UserCreate, db: AsyncSession = Depends(get_db)):
+    # 1) проверить invite_code
+    # 2) создать пользователя
     user = User(
         id=str(uuid.uuid4()),
         username=data.username,
         email=data.email,
         password=pwd_context.hash(data.password),
-        side=data.side,
     )
     db.add(user)
     await db.commit()
@@ -109,3 +112,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db=Depends(get_d
 async def get_me(current_user = Depends(get_current_user)):
     return current_user
 ```
+
+---
+
+## Связь с архетипами
+
+Выбор архетипа происходит после регистрации через `/api/v1/game/archetype`.  
+До выбора архетипа игрок считается `neutral` и имеет ограниченный доступ к контр‑фичам.

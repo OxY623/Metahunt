@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
@@ -17,12 +17,15 @@ import { AudioController } from "./AudioController";
 const PRIMARY_LINKS = [
   { href: "/", label: "Главная" },
   { href: "/dashboard", label: "Панель" },
-  { href: "/codex", label: "Кодекс" },
+  { href: "/map", label: "Карта" },
+  { href: "/posts", label: "Посты" },
   { href: "/chat", label: "Чат" },
+  { href: "/codex", label: "Кодекс" },
   { href: "/settings", label: "Настройки" },
 ];
 
 const SECONDARY_LINKS = [
+  { href: "/invites", label: "Инвайты" },
   { href: "/profile", label: "Профиль" },
   { href: "/password", label: "Пароль" },
   { href: "/intro?force=1", label: "Пролог" },
@@ -241,3 +244,4 @@ export function SiteHeader() {
     </>
   );
 }
+
