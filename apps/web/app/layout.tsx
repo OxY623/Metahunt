@@ -3,6 +3,7 @@ import { Orbitron, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
 import { SiteChrome } from "../widgets/site/SiteChrome";
+import { UiSettingsBootstrap } from "../shared/ui/UiSettingsBootstrap";
 
 const orbitron = Orbitron({
   subsets: ["latin"],
@@ -46,7 +47,7 @@ export const metadata: Metadata = {
     "msapplication-TileImage": "/ms-icon-144x144.png",
   },
 };
-//linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.9)),
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -76,6 +77,8 @@ export default function RootLayout({
           />
         </div>
 
+        <UiSettingsBootstrap />
+
         <div className="relative z-10">
           <SiteChrome>{children}</SiteChrome>
         </div>
@@ -83,5 +86,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-

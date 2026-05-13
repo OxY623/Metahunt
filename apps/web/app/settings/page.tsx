@@ -1,6 +1,6 @@
-﻿"use client";
+"use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { SiteHeader } from "../../widgets/site/SiteHeader";
 import { SectionHeading } from "../../shared/ui/SectionHeading";
@@ -15,11 +15,22 @@ import { ARCHETYPE_LABELS } from "../../entities/user/lib/archetypes";
 
 const STORAGE_KEY = "metahunt-ui-settings";
 
-const DEFAULT_SETTINGS = {
+type InterfaceVibe = "neon" | "sunset" | "matrix";
+
+type Settings = {
+  compact: boolean;
+  reduceMotion: boolean;
+  notifications: boolean;
+  autoJoinChat: boolean;
+  vibe: InterfaceVibe;
+};
+
+const DEFAULT_SETTINGS: Settings = {
   compact: false,
   reduceMotion: false,
   notifications: true,
   autoJoinChat: true,
+  vibe: "neon",
 };
 
 const PRIVACY_OPTIONS = [
@@ -28,7 +39,23 @@ const PRIVACY_OPTIONS = [
   { value: "private", label: "Скрытый" },
 ];
 
-type Settings = typeof DEFAULT_SETTINGS;
+const VIBE_OPTIONS: Array<{ value: InterfaceVibe; title: string; desc: string }> = [
+  {
+    value: "neon",
+    title: "Neon Pulse",
+    desc: "Классический cyber-неон с акцентом на сигналы.",
+  },
+  {
+    value: "sunset",
+    title: "Sunset Grid",
+    desc: "Теплее и мягче: закатные градиенты для долгих сессий.",
+  },
+  {
+    value: "matrix",
+    title: "Matrix Ops",
+    desc: "Контрастный tactical-режим с изумрудным свечением.",
+  },
+];
 
 type ProfileDraft = {
   nickname: string;
@@ -36,6 +63,10 @@ type ProfileDraft = {
   bio: string;
   privacy: string;
 };
+
+function isInterfaceVibe(value: unknown): value is InterfaceVibe {
+  return value === "neon" || value === "sunset" || value === "matrix";
+}
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -51,6 +82,17 @@ export default function SettingsPage() {
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
 
+  const bioLeft = 280 - profileDraft.bio.length;
+  const hasProfileChanges = useMemo(() => {
+    if (!user) return false;
+    return (
+      (profileDraft.nickname ?? "") !== (user.nickname ?? "") ||
+      (profileDraft.avatar ?? "") !== (user.avatar ?? "") ||
+      (profileDraft.bio ?? "") !== (user.bio ?? "") ||
+      (profileDraft.privacy ?? "public") !== (user.privacy ?? "public")
+    );
+  }, [profileDraft, user]);
+
   useEffect(() => {
     if (!user) return;
     setProfileDraft({
@@ -64,28 +106,39 @@ export default function SettingsPage() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as Partial<Settings>;
-        setSettings((prev) => ({ ...prev, ...parsed }));
-      } catch (_) {
-        // ignore invalid storage
-      }
+    if (!stored) return;
+    try {
+      const parsed = JSON.parse(stored) as Partial<Settings>;
+      setSettings((prev) => ({
+        compact: typeof parsed.compact === "boolean" ? parsed.compact : prev.compact,
+        reduceMotion:
+          typeof parsed.reduceMotion === "boolean"
+            ? parsed.reduceMotion
+            : prev.reduceMotion,
+        notifications:
+          typeof parsed.notifications === "boolean"
+            ? parsed.notifications
+            : prev.notifications,
+        autoJoinChat:
+          typeof parsed.autoJoinChat === "boolean"
+            ? parsed.autoJoinChat
+            : prev.autoJoinChat,
+        vibe: isInterfaceVibe(parsed.vibe) ? parsed.vibe : prev.vibe,
+      }));
+    } catch {
+      // ignore invalid storage
     }
   }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-    document.documentElement.dataset.motion = settings.reduceMotion
-      ? "reduce"
-      : "auto";
-    document.documentElement.dataset.density = settings.compact
-      ? "compact"
-      : "comfortable";
+    document.documentElement.dataset.motion = settings.reduceMotion ? "reduce" : "auto";
+    document.documentElement.dataset.density = settings.compact ? "compact" : "comfortable";
+    document.documentElement.dataset.vibe = settings.vibe;
   }, [settings]);
 
-  const toggle = (key: keyof Settings) => {
+  const toggle = (key: "compact" | "reduceMotion" | "notifications" | "autoJoinChat") => {
     setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
@@ -99,8 +152,8 @@ export default function SettingsPage() {
   const handleLogout = async () => {
     try {
       await logout();
-    // eslint-disable-next-line no-empty
-    } catch (_) {}
+      // eslint-disable-next-line no-empty
+    } catch {}
     clear();
     router.push("/");
   };
@@ -129,23 +182,28 @@ export default function SettingsPage() {
       <SiteHeader />
 
       <div className="page-shell pt-10 space-y-8">
-        <div className="space-y-2">
-          <SectionHeading as="h1">Настройки</SectionHeading>
+        <div className="space-y-3">
+          <SectionHeading as="h1">Центр управления</SectionHeading>
           <p className="text-text-muted text-sm">
-            Локальные параметры интерфейса и аккаунта. Изменения применяются
-            сразу.
+            Настрой интерфейс под себя: визуальный режим, плотность, эффекты и профиль.
           </p>
+          <div className="flex flex-wrap gap-2 text-[11px] uppercase tracking-[0.18em] text-text-dim">
+            <span className="rounded-full border border-meta-border px-2 py-1">Vibe: {settings.vibe}</span>
+            <span className="rounded-full border border-meta-border px-2 py-1">
+              Density: {settings.compact ? "compact" : "comfortable"}
+            </span>
+            <span className="rounded-full border border-meta-border px-2 py-1">
+              Motion: {settings.reduceMotion ? "reduce" : "full"}
+            </span>
+          </div>
         </div>
 
         {!token || !user ? (
           <Panel className="space-y-4">
             <div className="text-sm text-text-muted">
-              Нужно войти, чтобы управлять профилем и безопасностью.
+              Нужно войти, чтобы управлять профилем и персональными параметрами интерфейса.
             </div>
-            <Button variant="cyan" size="lg" onClick={() => router.push("/")}
-            >
-              Вернуться на главную
-            </Button>
+            <Button variant="cyan" size="lg" onClick={() => router.push("/")}>Вернуться на главную</Button>
           </Panel>
         ) : (
           <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
@@ -154,32 +212,22 @@ export default function SettingsPage() {
                 <div className="flex items-center gap-4">
                   <UserAvatar
                     archetype={profile?.archetype ?? null}
-                    avatarUrl={user.avatar ?? null}
-                    size={64}
+                    avatarUrl={profileDraft.avatar || user.avatar || null}
+                    size={68}
                   />
                   <div>
-                    <div className="text-xs uppercase tracking-[0.26em] text-text-dim">
-                      Аккаунт
-                    </div>
-                    <div className="text-lg font-display tracking-[0.18em]">
-                      {user.nickname}
-                    </div>
-                    <div className="text-xs text-text-muted">
-                      {user.email}
-                    </div>
+                    <div className="text-xs uppercase tracking-[0.26em] text-text-dim">Аккаунт</div>
+                    <div className="text-lg font-display tracking-[0.18em]">{user.nickname}</div>
+                    <div className="text-xs text-text-muted">{user.email}</div>
                     {profile?.archetype && (
-                      <div className="text-xs text-brand-cyan mt-1">
-                        {ARCHETYPE_LABELS[profile.archetype]}
-                      </div>
+                      <div className="text-xs text-brand-cyan mt-1">{ARCHETYPE_LABELS[profile.archetype]}</div>
                     )}
                   </div>
                 </div>
 
                 <div className="grid gap-3 md:grid-cols-2">
                   <div>
-                    <div className="text-xs uppercase tracking-[0.2em] text-text-dim">
-                      Никнейм
-                    </div>
+                    <div className="text-xs uppercase tracking-[0.2em] text-text-dim">Никнейм</div>
                     <Input
                       value={profileDraft.nickname}
                       onChange={(e) =>
@@ -191,17 +239,13 @@ export default function SettingsPage() {
                     />
                   </div>
                   <div>
-                    <div className="text-xs uppercase tracking-[0.2em] text-text-dim">
-                      Email
-                    </div>
+                    <div className="text-xs uppercase tracking-[0.2em] text-text-dim">Email</div>
                     <Input value={user.email} readOnly />
                   </div>
                 </div>
 
                 <div>
-                  <div className="text-xs uppercase tracking-[0.2em] text-text-dim">
-                    Avatar URL
-                  </div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-text-dim">Avatar URL</div>
                   <Input
                     value={profileDraft.avatar}
                     onChange={(e) =>
@@ -215,11 +259,10 @@ export default function SettingsPage() {
                 </div>
 
                 <div>
-                  <div className="text-xs uppercase tracking-[0.2em] text-text-dim">
-                    Bio
-                  </div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-text-dim">Bio</div>
                   <textarea
                     rows={4}
+                    maxLength={280}
                     value={profileDraft.bio}
                     onChange={(e) =>
                       setProfileDraft((prev) => ({
@@ -230,12 +273,11 @@ export default function SettingsPage() {
                     className="aug-input w-full px-4 py-3 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/30"
                     placeholder="Короткое описание..."
                   />
+                  <div className="mt-1 text-right text-xs text-text-dim">Осталось: {bioLeft}</div>
                 </div>
 
                 <div>
-                  <div className="text-xs uppercase tracking-[0.2em] text-text-dim">
-                    Приватность
-                  </div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-text-dim">Приватность</div>
                   <select
                     value={profileDraft.privacy}
                     onChange={(e) =>
@@ -265,9 +307,9 @@ export default function SettingsPage() {
                     variant="cyan"
                     size="md"
                     onClick={handleProfileSave}
-                    disabled={profileSaving}
+                    disabled={profileSaving || !hasProfileChanges}
                   >
-                    {profileSaving ? "..." : "Сохранить профиль"}
+                    {profileSaving ? "Сохранение..." : "Сохранить профиль"}
                   </Button>
                   <Button variant="neutral" size="md" onClick={() => router.push("/password")}>
                     Сменить пароль
@@ -279,18 +321,26 @@ export default function SettingsPage() {
               </Panel>
 
               <Panel className="space-y-4">
-                <div className="text-xs uppercase tracking-[0.26em] text-text-dim">
-                  Интерфейс
+                <div className="text-xs uppercase tracking-[0.26em] text-text-dim">Интерфейс</div>
+
+                <div className="grid gap-3 md:grid-cols-3">
+                  {VIBE_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setSettings((prev) => ({ ...prev, vibe: option.value }))}
+                      className={`vibe-option ${settings.vibe === option.value ? "vibe-option--active" : ""}`}
+                    >
+                      <span className="vibe-option__title">{option.title}</span>
+                      <span className="vibe-option__desc">{option.desc}</span>
+                    </button>
+                  ))}
                 </div>
 
-                <label className="flex items-center justify-between gap-4 border border-meta-border rounded-lg px-4 py-3">
+                <label className="settings-row">
                   <div>
-                    <div className="text-sm uppercase tracking-wider">
-                      Компактный режим
-                    </div>
-                    <div className="text-xs text-text-dim">
-                      Меньше отступов и плотнее контент.
-                    </div>
+                    <div className="settings-row__title">Компактный режим</div>
+                    <div className="settings-row__desc">Меньше отступов и плотнее контент.</div>
                   </div>
                   <input
                     type="checkbox"
@@ -300,14 +350,10 @@ export default function SettingsPage() {
                   />
                 </label>
 
-                <label className="flex items-center justify-between gap-4 border border-meta-border rounded-lg px-4 py-3">
+                <label className="settings-row">
                   <div>
-                    <div className="text-sm uppercase tracking-wider">
-                      Уменьшить анимации
-                    </div>
-                    <div className="text-xs text-text-dim">
-                      Снижает интенсивность эффектов для комфорта.
-                    </div>
+                    <div className="settings-row__title">Уменьшить анимации</div>
+                    <div className="settings-row__desc">Снижает интенсивность эффектов для комфорта.</div>
                   </div>
                   <input
                     type="checkbox"
@@ -317,14 +363,10 @@ export default function SettingsPage() {
                   />
                 </label>
 
-                <label className="flex items-center justify-between gap-4 border border-meta-border rounded-lg px-4 py-3">
+                <label className="settings-row">
                   <div>
-                    <div className="text-sm uppercase tracking-wider">
-                      Уведомления
-                    </div>
-                    <div className="text-xs text-text-dim">
-                      Показывать важные сигналы и системные события.
-                    </div>
+                    <div className="settings-row__title">Уведомления</div>
+                    <div className="settings-row__desc">Показывать важные сигналы и системные события.</div>
                   </div>
                   <input
                     type="checkbox"
@@ -334,14 +376,10 @@ export default function SettingsPage() {
                   />
                 </label>
 
-                <label className="flex items-center justify-between gap-4 border border-meta-border rounded-lg px-4 py-3">
+                <label className="settings-row">
                   <div>
-                    <div className="text-sm uppercase tracking-wider">
-                      Авто-вход в чат
-                    </div>
-                    <div className="text-xs text-text-dim">
-                      Открывать общий канал после входа.
-                    </div>
+                    <div className="settings-row__title">Авто-вход в чат</div>
+                    <div className="settings-row__desc">Открывать общий канал после входа.</div>
                   </div>
                   <input
                     type="checkbox"
@@ -352,40 +390,31 @@ export default function SettingsPage() {
                 </label>
 
                 <div className="flex flex-wrap gap-3">
-                  <Button variant="neutral" size="md" onClick={handleReset}>
-                    Сбросить настройки
-                  </Button>
+                  <Button variant="neutral" size="md" onClick={handleReset}>Сбросить настройки</Button>
                 </div>
               </Panel>
             </div>
 
             <div className="space-y-6">
               <Panel className="space-y-4">
-                <div className="text-xs uppercase tracking-[0.26em] text-text-dim">
-                  Системное состояние
-                </div>
-                <div className="text-sm text-text-muted">
-                  Настройки хранятся локально и не влияют на серверную
-                  статистику. Для полноценного профиля используйте разделы
-                  профиля и пароля.
+                <div className="text-xs uppercase tracking-[0.26em] text-text-dim">Live Preview</div>
+                <div className="preview-card">
+                  <div className="preview-card__title">UI / {settings.vibe.toUpperCase()}</div>
+                  <div className="preview-card__line">Density: {settings.compact ? "compact" : "comfortable"}</div>
+                  <div className="preview-card__line">Motion: {settings.reduceMotion ? "reduced" : "dynamic"}</div>
+                  <div className="preview-card__line">Notifications: {settings.notifications ? "enabled" : "disabled"}</div>
                 </div>
                 <div className="text-xs text-text-dim">
-                  Совет: включите уменьшение анимаций, если запускаете
-                  приложение на слабых устройствах.
+                  Здесь видно, как выбранный стиль влияет на акценты и контраст.
                 </div>
               </Panel>
 
               <Panel className="space-y-4">
-                <div className="text-xs uppercase tracking-[0.26em] text-text-dim">
-                  Быстрые действия
-                </div>
+                <div className="text-xs uppercase tracking-[0.26em] text-text-dim">Быстрые действия</div>
                 <div className="grid gap-3">
-                  <Button variant="cyan" size="md" onClick={() => router.push("/dashboard")}>
-                    Перейти в Dashboard
-                  </Button>
-                  <Button variant="neutral" size="md" onClick={() => router.push("/chat")}>
-                    Открыть чат
-                  </Button>
+                  <Button variant="cyan" size="md" onClick={() => router.push("/dashboard")}>Перейти в Dashboard</Button>
+                  <Button variant="neutral" size="md" onClick={() => router.push("/chat")}>Открыть чат</Button>
+                  <Button variant="neutral" size="md" onClick={() => router.push("/posts")}>Открыть постинг</Button>
                 </div>
               </Panel>
             </div>

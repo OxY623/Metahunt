@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Archetype } from "../../lib/api";
@@ -103,6 +103,7 @@ export function Soundscape({ className, archetype }: Props) {
       if (!pool.length) return;
       const audio = pool[clickIndexRef.current % pool.length];
       clickIndexRef.current += 1;
+      if (!audio) return;
       audio.currentTime = 0;
       audio.volume = Math.min(1, Math.max(0, keyVolume / 100));
       audio.play().catch(() => {});

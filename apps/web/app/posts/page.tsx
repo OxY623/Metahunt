@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -17,11 +17,47 @@ import { Panel } from "../../shared/ui/Panel";
 import { Button } from "../../shared/ui/Button";
 import { Input } from "../../shared/ui/Input";
 
+const POST_TYPES = ["short", "signal", "story", "clue"] as const;
+const MEDIA_TYPES = ["image", "video", "audio", "link"] as const;
+const MAX_POST_TEXT = 2000;
+const DRAFT_KEY = "metahunt-post-draft-v1";
+
+type PostType = (typeof POST_TYPES)[number];
+type MediaType = (typeof MEDIA_TYPES)[number];
+
+type PostDraft = {
+  postType: PostType;
+  text: string;
+  mediaUrl: string;
+  mediaType: MediaType;
+  isAnonymous: boolean;
+  boost: boolean;
+  geoTile: string;
+};
+
+const POST_TYPE_HINTS: Record<PostType, string> = {
+  short: "Короткий импульс в ленту.",
+  signal: "Сигнал команде или фракции.",
+  story: "Развернутый пост с контекстом.",
+  clue: "Подсказка или наводка по карте.",
+};
+
 function formatDate(value: string): string {
-  try {
-    return new Date(value).toLocaleString("ru-RU");
-  } catch {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
     return value;
+  }
+  return date.toLocaleString("ru-RU");
+}
+
+function parseHttpUrl(value: string): URL | null {
+  if (!value.trim()) return null;
+  try {
+    const parsed = new URL(value.trim());
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
+    return parsed;
+  } catch {
+    return null;
   }
 }
 
@@ -35,20 +71,75 @@ export default function PostsPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [creating, setCreating] = useState(false);
 
-  const [postType, setPostType] = useState("short");
+  const [postType, setPostType] = useState<PostType>("short");
   const [text, setText] = useState("");
   const [mediaUrl, setMediaUrl] = useState("");
-  const [mediaType, setMediaType] = useState("image");
+  const [mediaType, setMediaType] = useState<MediaType>("image");
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [boost, setBoost] = useState(false);
   const [geoTile, setGeoTile] = useState("");
 
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [draftReady, setDraftReady] = useState(false);
+
+  const parsedMediaUrl = useMemo(() => parseHttpUrl(mediaUrl), [mediaUrl]);
+  const textLeft = MAX_POST_TEXT - text.length;
 
   useEffect(() => {
     if (!loading && !token) router.replace("/");
   }, [token, loading, router]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem(DRAFT_KEY);
+      if (!raw) {
+        setDraftReady(true);
+        return;
+      }
+      const draft = JSON.parse(raw) as Partial<PostDraft>;
+      if (typeof draft.text === "string") setText(draft.text);
+      if (typeof draft.mediaUrl === "string") setMediaUrl(draft.mediaUrl);
+      if (typeof draft.geoTile === "string") setGeoTile(draft.geoTile);
+      if (typeof draft.isAnonymous === "boolean") setIsAnonymous(draft.isAnonymous);
+      if (typeof draft.boost === "boolean") setBoost(draft.boost);
+      if (draft.postType && POST_TYPES.includes(draft.postType)) setPostType(draft.postType);
+      if (draft.mediaType && MEDIA_TYPES.includes(draft.mediaType)) setMediaType(draft.mediaType);
+    } catch {
+      // ignore corrupted draft
+    } finally {
+      setDraftReady(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !draftReady) return;
+    const isEmptyDraft =
+      !text.trim() &&
+      !mediaUrl.trim() &&
+      !geoTile.trim() &&
+      !isAnonymous &&
+      !boost &&
+      postType === "short" &&
+      mediaType === "image";
+
+    if (isEmptyDraft) {
+      window.localStorage.removeItem(DRAFT_KEY);
+      return;
+    }
+
+    const payload: PostDraft = {
+      postType,
+      text,
+      mediaUrl,
+      mediaType,
+      isAnonymous,
+      boost,
+      geoTile,
+    };
+    window.localStorage.setItem(DRAFT_KEY, JSON.stringify(payload));
+  }, [draftReady, postType, text, mediaUrl, mediaType, isAnonymous, boost, geoTile]);
 
   const loadFeed = useCallback(
     async (cursor?: string, append = false) => {
@@ -78,16 +169,35 @@ export default function PostsPage() {
     loadFeed();
   }, [loadFeed]);
 
+  const resetComposer = useCallback(() => {
+    setText("");
+    setMediaUrl("");
+    setGeoTile("");
+    setBoost(false);
+    setIsAnonymous(false);
+    setPostType("short");
+    setMediaType("image");
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem(DRAFT_KEY);
+    }
+  }, []);
+
   const handleCreate = useCallback(async () => {
     if (!token) return;
 
+    const trimmedMediaUrl = mediaUrl.trim();
     const trimmedText = text.trim();
-    const media: PostMedia[] = mediaUrl.trim()
-      ? [{ url: mediaUrl.trim(), type: mediaType.trim() || "image" }]
+    const media: PostMedia[] = trimmedMediaUrl
+      ? [{ url: trimmedMediaUrl, type: mediaType }]
       : [];
 
     if (!trimmedText && media.length === 0) {
-      setError("Добавь текст или media.");
+      setError("Добавь текст или медиа.");
+      return;
+    }
+
+    if (trimmedMediaUrl && !parsedMediaUrl) {
+      setError("Укажи корректный URL для медиа (http/https).");
       return;
     }
 
@@ -105,19 +215,27 @@ export default function PostsPage() {
       });
 
       setItems((prev) => [response.post, ...prev]);
-      setInfo(`Пост создан. Потрачено ${response.shards_spent} shards.`);
-
-      setText("");
-      setMediaUrl("");
-      setGeoTile("");
-      setBoost(false);
-      setIsAnonymous(false);
+      setInfo(`Пост создан. Потрачено ${response.shards_spent} осколков.`);
+      resetComposer();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Ошибка создания поста");
     } finally {
       setCreating(false);
     }
-  }, [token, text, mediaUrl, mediaType, postType, isAnonymous, geoTile, boost]);
+  }, [
+    token,
+    text,
+    mediaUrl,
+    mediaType,
+    postType,
+    isAnonymous,
+    geoTile,
+    boost,
+    parsedMediaUrl,
+    resetComposer,
+  ]);
+
+  const canSubmit = Boolean(text.trim()) || Boolean(mediaUrl.trim());
 
   if (loading) {
     return <LoadingScreen />;
@@ -142,28 +260,81 @@ export default function PostsPage() {
           <Panel variant="pink" className="space-y-4">
             <div className="text-xs uppercase tracking-[0.26em] text-text-dim">Новый пост</div>
 
-            <div className="grid gap-3">
-              <Input value={postType} onChange={(e) => setPostType(e.target.value)} placeholder="short" />
+            <form
+              className="grid gap-3"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void handleCreate();
+              }}
+            >
+              <label className="grid gap-1 text-xs text-text-dim">
+                Тип поста
+                <select
+                  value={postType}
+                  onChange={(e) => setPostType(e.target.value as PostType)}
+                  className="aug-input w-full px-4 py-3 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/30"
+                >
+                  {POST_TYPES.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <p className="text-xs text-text-dim">{POST_TYPE_HINTS[postType]}</p>
 
               <textarea
                 rows={5}
+                maxLength={MAX_POST_TEXT}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
+                onKeyDown={(e) => {
+                  if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+                    e.preventDefault();
+                    void handleCreate();
+                  }
+                }}
                 className="aug-input w-full px-4 py-3 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/30"
                 placeholder="Текст поста"
               />
+              <div className="flex items-center justify-between text-xs text-text-dim">
+                <span>Ctrl/Cmd + Enter для быстрой публикации</span>
+                <span className={textLeft < 160 ? "text-brand-pink" : "text-text-dim"}>{text.length}/{MAX_POST_TEXT}</span>
+              </div>
 
-              <Input
-                value={mediaUrl}
-                onChange={(e) => setMediaUrl(e.target.value)}
-                placeholder="https://.../media.png"
-              />
+              <label className="grid gap-1 text-xs text-text-dim">
+                Медиа URL
+                <Input
+                  value={mediaUrl}
+                  onChange={(e) => setMediaUrl(e.target.value)}
+                  placeholder="https://.../media.png"
+                />
+              </label>
 
-              <Input
-                value={mediaType}
-                onChange={(e) => setMediaType(e.target.value)}
-                placeholder="image"
-              />
+              <label className="grid gap-1 text-xs text-text-dim">
+                Тип медиа
+                <select
+                  value={mediaType}
+                  onChange={(e) => setMediaType(e.target.value as MediaType)}
+                  className="aug-input w-full px-4 py-3 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan/30"
+                >
+                  {MEDIA_TYPES.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              {mediaUrl.trim() && (
+                <div
+                  className={`rounded border px-3 py-2 text-xs ${parsedMediaUrl ? "border-brand-cyan/35 text-brand-cyan" : "border-brand-pink/45 text-brand-pink"}`}
+                >
+                  {parsedMediaUrl
+                    ? `Превью: [${mediaType}] ${parsedMediaUrl.hostname}${parsedMediaUrl.pathname}`
+                    : "URL некорректный: используйте http/https"}
+                </div>
+              )}
 
               <Input
                 value={geoTile}
@@ -191,10 +362,15 @@ export default function PostsPage() {
                 />
               </label>
 
-              <Button variant="cyan" size="md" onClick={handleCreate} disabled={creating}>
-                {creating ? "..." : "Опубликовать"}
-              </Button>
-            </div>
+              <div className="flex gap-2">
+                <Button type="submit" variant="cyan" size="md" disabled={creating || !canSubmit}>
+                  {creating ? "..." : "Опубликовать"}
+                </Button>
+                <Button type="button" variant="neutral" size="md" onClick={resetComposer} disabled={creating}>
+                  Очистить
+                </Button>
+              </div>
+            </form>
 
             {error && (
               <div className="text-xs border border-brand-pink/45 bg-brand-pink/10 text-brand-pink rounded px-3 py-2">
@@ -234,9 +410,7 @@ export default function PostsPage() {
                       <div className="text-text-dim">{formatDate(post.created_at)}</div>
                     </div>
 
-                    <div className="text-sm text-text-primary whitespace-pre-wrap">
-                      {post.text ?? "—"}
-                    </div>
+                    <div className="text-sm text-text-primary whitespace-pre-wrap">{post.text ?? "—"}</div>
 
                     {post.media.length > 0 && (
                       <div className="space-y-1">

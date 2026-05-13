@@ -67,6 +67,7 @@ async def send_message(
         raise HTTPException(status_code=403, detail="Порт заблокирован на 1 минуту")
     await game.spend_energy(profile, 1)
     msg = await chat.send_message(current_user, dto, is_anonymous=False)
+    await game.claim_first_message_reward(current_user.id)
     await chat.session.commit()
     res = chat.to_response(msg)
     res.effect_payload = str(get_effects_payload(current_user.id))

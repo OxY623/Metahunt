@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -17,6 +17,7 @@ export function LoginForm({ onSuccess, className }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -40,40 +41,42 @@ export function LoginForm({ onSuccess, className }: Props) {
   return (
     <form onSubmit={handleSubmit} className={cn("space-y-4", className)}>
       <div>
-        <label className="block text-xs text-text-muted mb-1 uppercase tracking-wider">
-          Email
-        </label>
+        <label className="block text-xs text-text-muted mb-1 uppercase tracking-wider">Email</label>
         <Input
           name="email"
           type="email"
           required
+          autoComplete="email"
           placeholder="user@domain.net"
         />
       </div>
-      <div>
-        <label className="block text-xs text-text-muted mb-1 uppercase tracking-wider">
-          Пароль
-        </label>
+
+      <div className="space-y-2">
+        <label className="block text-xs text-text-muted uppercase tracking-wider">Пароль</label>
         <Input
           name="password"
-          type="password"
+          type={showPassword ? "text" : "password"}
           required
+          autoComplete="current-password"
           placeholder="••••••••"
         />
+        <label className="inline-flex items-center gap-2 text-xs text-text-dim">
+          <input
+            type="checkbox"
+            checked={showPassword}
+            onChange={(e) => setShowPassword(e.target.checked)}
+            className="h-4 w-4 accent-cyan-400"
+          />
+          Показать пароль
+        </label>
       </div>
+
       {error && (
-        <div className="text-xs text-brand-pink border border-brand-pink/40 px-3 py-2 rounded">
-          {error}
-        </div>
+        <div className="text-xs text-brand-pink border border-brand-pink/40 px-3 py-2 rounded">{error}</div>
       )}
-      <Button
-        type="submit"
-        variant="cyan"
-        size="lg"
-        disabled={loading}
-        className="w-full"
-      >
-        {loading ? "..." : "Подтвердить вход"}
+
+      <Button type="submit" variant="cyan" size="lg" disabled={loading} className="w-full">
+        {loading ? "Проверка..." : "Подтвердить вход"}
       </Button>
     </form>
   );

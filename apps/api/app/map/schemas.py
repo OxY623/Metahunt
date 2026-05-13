@@ -19,9 +19,34 @@ class TilesResponse(BaseModel):
     mode: str
 
 
+class MapClusterResponse(BaseModel):
+    id: str
+    lat: float
+    lng: float
+    count: int
+    intensity: float
+    dominant_archetype: Optional[str] = None
+    tile_ids: list[str]
+
+
+class MapClustersResponse(BaseModel):
+    items: list[MapClusterResponse]
+    mode: str
+
+
 class GeoPointDto(BaseModel):
     lat: float = Field(..., ge=-90.0, le=90.0)
     lng: float = Field(..., ge=-180.0, le=180.0)
+
+
+class MapSearchResponse(BaseModel):
+    query: str
+    label: str
+    center: GeoPointDto
+    bbox: str
+    zoom: int
+    clusters: list[MapClusterResponse]
+    tiles: list[TileResponse]
 
 
 class CheckinDto(BaseModel):

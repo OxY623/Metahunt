@@ -134,7 +134,26 @@ class InviteService:
             tax_to_fox = int(tax_to_bear * FOX_TAX_SHARE)
 
         inviter_delta = max(reward_total - tax_to_bear - tax_to_fox, 0)
-        inviter_profile.shards += inviter_delta
+        await self.game.add_shards(
+            inviter_profile,
+            inviter_delta,
+            "invite_reward",
+            {"invite_id": str(invite.id), "code": invite.code},
+        )
+        if tax_to_bear:
+            await self.game._award_to_archetype(
+                Archetype.BEAR,
+                tax_to_bear,
+                "tax_income",
+                {"source": "invite", "invite_id": str(invite.id)},
+            )
+        if tax_to_fox:
+            await self.game._award_to_archetype(
+                Archetype.FOXY,
+                tax_to_fox,
+                "tax_income",
+                {"source": "invite", "invite_id": str(invite.id)},
+            )
 
         invite.status = "redeemed"
         invite.redeemed_by = dto.redeemed_by

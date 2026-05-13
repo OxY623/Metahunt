@@ -8,6 +8,7 @@ import {
   glitchScreen,
   goldenShield,
   interact,
+  owlDeal,
   whisper,
 } from "../../../lib/api";
 import { Button } from "../../../shared/ui/Button";
@@ -33,13 +34,20 @@ export function ArchetypeActions({ token, archetype, onDone }: Props) {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
-  const run = async (fn: () => Promise<{ msg: string }>) => {
+  const run = async (
+    fn: () => Promise<{ msg: string; shards_spent?: number; shards_rewarded?: number }>,
+  ) => {
     setLoading(true);
     setMsg(null);
     try {
       const res = await fn();
-      setMsg(res.msg);
-      onDone?.(res.msg);
+      const economyTail =
+        res.shards_spent != null
+          ? ` -${res.shards_spent} Shards${res.shards_rewarded ? `, +${res.shards_rewarded}` : ""}`
+          : "";
+      const message = `${res.msg}${economyTail}`;
+      setMsg(message);
+      onDone?.(message);
       setTargetId("");
       setWhisperText("");
     } finally {
@@ -86,7 +94,7 @@ export function ArchetypeActions({ token, archetype, onDone }: Props) {
             disabled={loading || !targetId}
             onClick={() => run(() => glitchScreen(token, targetId))}
           >
-            Глитч экрана (15 Shards)
+            Глитч экрана (-20 / +12)
           </Button>
         )}
         {archetype === "OXY" && (
@@ -96,7 +104,7 @@ export function ArchetypeActions({ token, archetype, onDone }: Props) {
               disabled={loading || !targetId}
               onClick={() => run(() => directStrike(token, targetId))}
             >
-              Прямой удар (5 Shards)
+              Прямой удар (-7 / +14)
             </Button>
             <Button
               variant="neutral"
@@ -114,25 +122,34 @@ export function ArchetypeActions({ token, archetype, onDone }: Props) {
               disabled={loading}
               onClick={() => run(() => goldenShield(token))}
             >
-              Золотой щит (20 Shards)
+              Золотой щит (-20)
             </Button>
             <Button
               variant="pink"
               disabled={loading || !targetId}
               onClick={() => run(() => banPort(token, targetId))}
             >
-              Бан порта (30 Shards)
+              Бан порта (-39 / +12)
             </Button>
           </>
         )}
         {archetype === "OWL" && (
-          <Button
-            variant="neutral"
-            disabled={loading || !targetId || !whisperText}
-            onClick={() => run(() => whisper(token, targetId, whisperText))}
-          >
-            Шёпот (20 Shards)
-          </Button>
+          <>
+            <Button
+              variant="neutral"
+              disabled={loading || !targetId || !whisperText}
+              onClick={() => run(() => whisper(token, targetId, whisperText))}
+            >
+              Шёпот (-26)
+            </Button>
+            <Button
+              variant="cyan"
+              disabled={loading || !targetId}
+              onClick={() => run(() => owlDeal(token, targetId))}
+            >
+              Сделка с данными (+20)
+            </Button>
+          </>
         )}
       </div>
     </Panel>

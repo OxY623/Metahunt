@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { SiteHeader } from "../../widgets/site/SiteHeader";
@@ -14,16 +14,68 @@ import { useGameProfile } from "../../shared/model/game-profile";
 import { ArchetypePicker } from "../../features/game/ui/ArchetypePicker";
 import { ArchetypeActions } from "../../features/game/ui/ArchetypeActions";
 import { ARCHETYPE_LABELS } from "../../entities/user/lib/archetypes";
+import { UserAvatar } from "../../entities/user/ui/UserAvatar";
+import {
+  claimDailyLogin,
+  claimQuestReward,
+  getShardLedger,
+  type ShardLedgerEntry,
+} from "../../lib/api";
+
+const QUICK_LINKS = [
+  { href: "/map", label: "Карта", desc: "Пульс районов и check-in" },
+  { href: "/posts", label: "Посты", desc: "Сигналы, истории и клатчи" },
+  { href: "/invites", label: "Инвайты", desc: "Контроль доступа в сеть" },
+  { href: "/chat", label: "Чат", desc: "Фракционный канал и DM" },
+] as const;
 
 export default function DashboardPage() {
   const router = useRouter();
   const { token, user, loading } = useSession();
   const { profile, refresh } = useGameProfile(token, Boolean(token));
   const [actionMsg, setActionMsg] = useState<string | null>(null);
+  const [ledger, setLedger] = useState<ShardLedgerEntry[]>([]);
+  const [rewardLoading, setRewardLoading] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !token) router.replace("/");
   }, [token, loading, router]);
+
+  useEffect(() => {
+    if (!token) return;
+    getShardLedger(token).then(setLedger).catch(() => setLedger([]));
+  }, [token, profile?.shards]);
+
+  const refreshEconomy = async () => {
+    await refresh();
+    if (token) {
+      const items = await getShardLedger(token);
+      setLedger(items);
+    }
+  };
+
+  const claimReward = async (kind: "daily" | "quest", questKey = "first_move") => {
+    if (!token) return;
+    setRewardLoading(kind === "daily" ? "daily" : questKey);
+    setActionMsg(null);
+    try {
+      const res =
+        kind === "daily"
+          ? await claimDailyLogin(token)
+          : await claimQuestReward(token, questKey);
+      setActionMsg(res.msg);
+      await refreshEconomy();
+    } catch (err) {
+      setActionMsg(err instanceof Error ? err.message : "Награда недоступна");
+    } finally {
+      setRewardLoading(null);
+    }
+  };
+
+  const xpProgress = useMemo(() => {
+    if (!profile || profile.xp_to_next <= 0) return 0;
+    return Math.max(0, Math.min(100, Math.round((profile.xp / profile.xp_to_next) * 100)));
+  }, [profile]);
 
   if (loading) {
     return <LoadingScreen />;
@@ -43,103 +95,203 @@ export default function DashboardPage() {
 
       <div className="page-shell pt-10 space-y-6">
         <SectionHeading as="h1" className={profile?.archetype ? "archetype-heading" : ""}>
-          Панель управления
+          Оперативная панель
         </SectionHeading>
 
-        <Panel className="space-y-4">
-          <h2 className="text-brand-cyan text-sm uppercase tracking-wider">Профиль</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-            <p>
-              <span className="text-text-dim">ID:</span> {user.id}
-            </p>
-            <p>
-              <span className="text-text-dim">Email:</span> {user.email}
-            </p>
-            <p>
-              <span className="text-text-dim">Nick:</span> {user.nickname}
-            </p>
-            <p>
-              <span className="text-text-dim">Role:</span> {user.role}
-            </p>
-          </div>
-
-          <div className="mt-2 flex flex-wrap gap-3">
-            <Button variant="cyan" size="sm" onClick={() => router.push("/profile")}>Редактировать</Button>
-            <Button variant="neutral" size="sm" onClick={() => router.push("/password")}>Сменить пароль</Button>
-            <Button variant="neutral" size="sm" onClick={() => router.push("/codex")}>Кодекс / Правила</Button>
-          </div>
-        </Panel>
-
-        <Panel variant="cyan" className="space-y-3">
-          <div className="text-xs uppercase tracking-[0.24em] text-text-dim">Быстрый доступ</div>
-          <div className="flex flex-wrap gap-3">
-            <Button variant="neutral" size="sm" onClick={() => router.push("/map")}>Карта</Button>
-            <Button variant="neutral" size="sm" onClick={() => router.push("/posts")}>Посты</Button>
-            <Button variant="neutral" size="sm" onClick={() => router.push("/invites")}>Инвайты</Button>
-            <Button variant="neutral" size="sm" onClick={() => router.push("/chat")}>Чат</Button>
-          </div>
-        </Panel>
-
-        {profile && (
-          <Panel variant="pink" className="space-y-3">
-            <div className="flex items-center gap-3 flex-wrap">
-              <h2 className="text-sm uppercase tracking-wider archetype-heading">Игровой профиль</h2>
-              {profile.archetype && <Badge tone="cyan">{ARCHETYPE_LABELS[profile.archetype]}</Badge>}
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
-              <p>
-                <span className="text-text-dim">Архетип:</span> {profile.archetype ?? "—"}
-              </p>
-              <p>
-                <span className="text-text-dim">Уровень:</span> {profile.level}
-              </p>
-              <p>
-                <span className="text-text-dim">XP:</span> {profile.xp} / {profile.xp_to_next}
-              </p>
-              <p>
-                <span className="text-text-dim">Репутация:</span> {profile.reputation}
-              </p>
-              <p>
-                <span className="text-text-dim">Сезон:</span> {profile.season_points}
-              </p>
-              <p>
-                <span className="text-text-dim">Shards:</span> {profile.shards}
-              </p>
-              <p>
-                <span className="text-text-dim">Энергия:</span> {profile.energy}
-              </p>
-            </div>
-
-            {profile.stats && (
-              <div className="pt-3 border-t border-meta-border">
-                <p className="text-text-dim text-xs mb-2">Характеристики</p>
-                <div className="flex flex-wrap gap-2">
-                  {Object.entries(profile.stats).map(([k, v]) => (
-                    <span key={k} className="px-2 py-1 bg-meta-surface/70 rounded text-xs">
-                      {k}: {v}
-                    </span>
-                  ))}
+        <Panel className="aggressive-frame reveal-fade p-5 sm:p-6">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <UserAvatar
+                archetype={profile?.archetype ?? null}
+                avatarUrl={user.avatar ?? null}
+                size={68}
+              />
+              <div className="space-y-1">
+                <div className="text-xs uppercase tracking-[0.25em] text-text-dim">Session Online</div>
+                <div className="font-display text-xl tracking-[0.16em] text-text-primary uppercase">
+                  {user.nickname}
                 </div>
+                <div className="text-xs text-text-dim">{user.email}</div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <Badge tone="muted">Role: {user.role}</Badge>
+              <Badge tone={profile?.archetype ? "cyan" : "warning"}>
+                {profile?.archetype ? ARCHETYPE_LABELS[profile.archetype] : "Архетип не выбран"}
+              </Badge>
+              <Badge tone="pink">Admin Watching</Badge>
+            </div>
+          </div>
+        </Panel>
+
+        <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr] items-start">
+          <div className="space-y-6">
+            {profile && (
+              <Panel variant="cyan" className="space-y-4">
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  <div className="text-xs uppercase tracking-[0.24em] text-text-dim">Прогресс агента</div>
+                  <div className="text-xs text-text-muted">XP {profile.xp} / {profile.xp_to_next}</div>
+                </div>
+
+                <div
+                  role="progressbar"
+                  aria-label="Прогресс до следующего уровня"
+                  aria-valuenow={xpProgress}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  className="h-3 rounded-full border border-meta-border bg-meta-bg/70 overflow-hidden"
+                >
+                  <div
+                    className="h-full bg-linear-to-r from-brand-cyan via-brand-pink to-brand-cyan transition-all"
+                    style={{ width: `${xpProgress}%` }}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="preview-card">
+                    <div className="preview-card__title">Уровень</div>
+                    <div className="text-lg text-text-primary">{profile.level}</div>
+                  </div>
+                  <div className="preview-card">
+                    <div className="preview-card__title">Shards</div>
+                    <div className="text-lg text-text-primary">{profile.shards}</div>
+                  </div>
+                  <div className="preview-card">
+                    <div className="preview-card__title">Энергия</div>
+                    <div className="text-lg text-text-primary">{profile.energy}</div>
+                  </div>
+                  <div className="preview-card">
+                    <div className="preview-card__title">Репутация</div>
+                    <div className="text-lg text-text-primary">{profile.reputation}</div>
+                  </div>
+                </div>
+
+                {profile.stats && (
+                  <div className="pt-2 border-t border-meta-border">
+                    <div className="text-xs uppercase tracking-[0.2em] text-text-dim mb-2">Характеристики</div>
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(profile.stats).map(([k, v]) => (
+                        <Badge key={k} tone="muted">{k}: {v}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </Panel>
+            )}
+
+            {profile && (
+              <Panel className="space-y-4">
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  <div className="text-xs uppercase tracking-[0.24em] text-text-dim">Демо-экономика</div>
+                  <Badge tone="cyan">Баланс: {profile.shards}</Badge>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    disabled={rewardLoading === "daily"}
+                    onClick={() => claimReward("daily")}
+                    className="vibe-option disabled:opacity-50"
+                  >
+                    <span className="vibe-option__title">Ежедневный вход</span>
+                    <span className="vibe-option__desc">+10 Осколков, один раз в день</span>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={rewardLoading === "first_move"}
+                    onClick={() => claimReward("quest", "first_move")}
+                    className="vibe-option disabled:opacity-50"
+                  >
+                    <span className="vibe-option__title">Первый ход</span>
+                    <span className="vibe-option__desc">+15 за применение фракционного действия</span>
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  <div className="text-xs uppercase tracking-[0.2em] text-text-dim">Последние операции</div>
+                  {ledger.length === 0 ? (
+                    <div className="text-xs text-text-dim">Ledger пока пуст. Забери награду или используй действие.</div>
+                  ) : (
+                    <div className="grid gap-2">
+                      {ledger.slice(0, 6).map((entry) => (
+                        <div key={entry.id} className="preview-card flex items-center justify-between gap-3">
+                          <div>
+                            <div className="preview-card__title">{entry.reason}</div>
+                            <div className="preview-card__line">
+                              Баланс после: {entry.balance_after}
+                            </div>
+                          </div>
+                          <div className={entry.delta >= 0 ? "text-brand-cyan" : "text-brand-pink"}>
+                            {entry.delta >= 0 ? "+" : ""}{entry.delta}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </Panel>
+            )}
+
+            <Panel className="space-y-4">
+              <div className="text-xs uppercase tracking-[0.24em] text-text-dim">Навигация по операциям</div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {QUICK_LINKS.map((link) => (
+                  <button
+                    key={link.href}
+                    type="button"
+                    onClick={() => router.push(link.href)}
+                    className="vibe-option"
+                  >
+                    <span className="vibe-option__title">{link.label}</span>
+                    <span className="vibe-option__desc">{link.desc}</span>
+                  </button>
+                ))}
+              </div>
+            </Panel>
+
+            {!profile?.archetype && <ArchetypePicker token={token} onChosen={refresh} />}
+
+            {profile?.archetype && (
+              <ArchetypeActions
+                token={token}
+                archetype={profile.archetype}
+                onDone={(msg) => {
+                  setActionMsg(msg);
+                  refreshEconomy();
+                }}
+              />
+            )}
+
+            {actionMsg && (
+              <div className="text-xs border border-brand-cyan/40 bg-brand-cyan/10 text-brand-cyan rounded px-3 py-2">
+                {actionMsg}
               </div>
             )}
-          </Panel>
-        )}
+          </div>
 
-        {!profile?.archetype && <ArchetypePicker token={token} onChosen={refresh} />}
+          <div className="space-y-6">
+            <Panel className="space-y-4">
+              <div className="text-xs uppercase tracking-[0.24em] text-text-dim">Управление аккаунтом</div>
+              <div className="grid gap-3">
+                <Button variant="cyan" size="md" onClick={() => router.push("/profile")}>Редактировать профиль</Button>
+                <Button variant="neutral" size="md" onClick={() => router.push("/settings")}>Центр управления</Button>
+                <Button variant="neutral" size="md" onClick={() => router.push("/password")}>Сменить пароль</Button>
+                <Button variant="neutral" size="md" onClick={() => router.push("/codex")}>Кодекс и правила</Button>
+              </div>
+            </Panel>
 
-        {profile?.archetype && (
-          <ArchetypeActions
-            token={token}
-            archetype={profile.archetype}
-            onDone={(msg) => {
-              setActionMsg(msg);
-              refresh();
-            }}
-          />
-        )}
-
-        {actionMsg && <div className="text-xs text-brand-cyan">{actionMsg}</div>}
+            <Panel className="space-y-4">
+              <div className="text-xs uppercase tracking-[0.24em] text-text-dim">Статус сессии</div>
+              <div className="preview-card">
+                <div className="preview-card__title">Core</div>
+                <div className="preview-card__line">User ID: {user.id.slice(0, 8)}...</div>
+                <div className="preview-card__line">Role: {user.role}</div>
+                <div className="preview-card__line">
+                  Archetype: {profile?.archetype ? ARCHETYPE_LABELS[profile.archetype] : "не выбран"}
+                </div>
+              </div>
+            </Panel>
+          </div>
+        </section>
       </div>
     </main>
   );

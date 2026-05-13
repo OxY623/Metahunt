@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import { Circle, MapContainer, Marker, Popup, TileLayer, useMapEvents } from "react-leaflet";
+import { Circle, MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { divIcon } from "leaflet";
 
-import type { GeoTile } from "../../lib/api";
+import type { GeoTile, MapCluster } from "../../lib/api";
 
 export type GeoMapViewport = {
   bbox: string;
@@ -14,9 +14,11 @@ export type GeoMapViewport = {
 
 type GeoMapProps = {
   tiles: GeoTile[];
+  clusters?: MapCluster[];
   selectedTileId: string | null;
   onSelectTile: (tileId: string) => void;
   onViewportChange: (state: GeoMapViewport) => void;
+  focus?: { lat: number; lng: number; zoom?: number } | null;
 };
 
 function decodeTileId(tileId: string): { lat: number; lng: number } | null {
@@ -46,6 +48,17 @@ function makeMarker(color: string, selected: boolean) {
   return divIcon({
     className: "",
     html: `<span style=\"display:block;width:${size}px;height:${size}px;border-radius:9999px;background:${color};border:2px solid rgba(11,15,26,0.9);box-shadow:0 0 14px ${color};\"></span>`,
+    iconSize: [size, size],
+    iconAnchor: [Math.round(size / 2), Math.round(size / 2)],
+  });
+}
+
+function makeClusterMarker(cluster: MapCluster) {
+  const color = archetypeColor(cluster.dominant_archetype);
+  const size = Math.max(28, Math.min(56, 24 + cluster.count * 6));
+  return divIcon({
+    className: "",
+    html: `<span style=\"display:flex;align-items:center;justify-content:center;width:${size}px;height:${size}px;border-radius:9999px;background:rgba(11,15,26,0.88);border:2px solid ${color};box-shadow:0 0 22px ${color};color:#f8fbff;font:700 12px monospace;\">${cluster.count}</span>`,
     iconSize: [size, size],
     iconAnchor: [Math.round(size / 2), Math.round(size / 2)],
   });
@@ -85,11 +98,27 @@ function ViewportSync({
   return null;
 }
 
+function FocusSync({ focus }: { focus?: { lat: number; lng: number; zoom?: number } | null }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!focus) return;
+    map.flyTo([focus.lat, focus.lng], focus.zoom ?? map.getZoom(), {
+      animate: true,
+      duration: 0.8,
+    });
+  }, [focus, map]);
+
+  return null;
+}
+
 export function GeoMap({
   tiles,
+  clusters = [],
   selectedTileId,
   onSelectTile,
   onViewportChange,
+  focus,
 }: GeoMapProps) {
   return (
     <div className="h-[460px] w-full overflow-hidden rounded-xl border border-meta-border">
@@ -100,6 +129,7 @@ export function GeoMap({
         scrollWheelZoom
       >
         <ViewportSync onViewportChange={onViewportChange} />
+        <FocusSync focus={focus} />
 
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -157,6 +187,48 @@ export function GeoMap({
             </Marker>
           );
         })}
+
+        {clusters.map((cluster) => {
+          const color = archetypeColor(cluster.dominant_archetype);
+          const radius = 180 + cluster.count * 95 + Math.max(0, Math.min(1, cluster.intensity)) * 260;
+
+          return (
+            <Circle
+              key={`cluster-area-${cluster.id}`}
+              center={[cluster.lat, cluster.lng]}
+              radius={radius}
+              pathOptions={{
+                color,
+                fillColor: color,
+                fillOpacity: 0.08,
+                weight: 1,
+                dashArray: "4 6",
+              }}
+            />
+          );
+        })}
+
+        {clusters.map((cluster) => (
+          <Marker
+            key={`cluster-${cluster.id}`}
+            position={[cluster.lat, cluster.lng]}
+            icon={makeClusterMarker(cluster)}
+            eventHandlers={{
+              click: () => {
+                const firstTile = cluster.tile_ids[0];
+                if (firstTile) onSelectTile(firstTile);
+              },
+            }}
+          >
+            <Popup>
+              <div className="text-xs space-y-1">
+                <div><strong>Cluster:</strong> {cluster.count} tiles</div>
+                <div><strong>Intensity:</strong> {cluster.intensity.toFixed(2)}</div>
+                <div><strong>Archetype:</strong> {cluster.dominant_archetype ?? "mixed"}</div>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
       </MapContainer>
     </div>
   );

@@ -104,7 +104,13 @@ class PostsService:
             raise HTTPException(status_code=402, detail="not_enough_shards")
 
         profile.energy -= energy_cost
-        profile.shards -= shards_spent
+        if shards_spent:
+            await self.game.subtract_shards(
+                profile,
+                shards_spent,
+                "skill_cost",
+                {"source": "post", "boost": dto.boost, "anonymous": dto.is_anonymous},
+            )
 
         post = Post(
             author_id=current_user.id,

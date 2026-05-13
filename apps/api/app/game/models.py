@@ -56,7 +56,7 @@ class GameProfile(Base):
     season_points = Column(Integer, default=0, nullable=False)
 
     # --- Ресурсы ---
-    shards      = Column(Integer, default=100, nullable=False)  # Внутриигровая валюта (осколки)
+    shards      = Column(Integer, default=80, nullable=False)  # Внутриигровая валюта (осколки)
     energy      = Column(Integer, default=100, nullable=False)  # Лимит действий в день
 
     # --- Инвайты ---

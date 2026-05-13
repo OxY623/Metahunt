@@ -253,3 +253,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+# Keep frontend API client tracked even with Python-style lib/ ignore
+!apps/web/lib/
+!apps/web/lib/api.ts
+apps/web/lib/_tmp_test.txt

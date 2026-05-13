@@ -66,6 +66,23 @@ export default function HomePage() {
               {isAuthed ? "Signal = Live • Admin Watching" : "Trust = False • Survival = True"}
             </div>
 
+            {!isAuthed && (
+              <div className="grid gap-3 sm:grid-cols-3 mt-4">
+                <Panel className="p-3">
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-text-dim">Путь входа</div>
+                  <div className="mt-1 text-sm text-text-primary">2 режима авторизации без лишних шагов.</div>
+                </Panel>
+                <Panel className="p-3">
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-text-dim">Настройки</div>
+                  <div className="mt-1 text-sm text-text-primary">Визуальные профили и плотность UI под твой вкус.</div>
+                </Panel>
+                <Panel className="p-3">
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-text-dim">Старт</div>
+                  <div className="mt-1 text-sm text-text-primary">После входа сразу доступ к панели, чату и постингу.</div>
+                </Panel>
+              </div>
+            )}
+
             {isAuthed && (
               <Panel className="mt-6 p-4">
                 <div className="text-xs uppercase tracking-[0.28em] text-text-dim">

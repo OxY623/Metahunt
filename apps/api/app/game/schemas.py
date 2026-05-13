@@ -1,6 +1,7 @@
 ﻿from pydantic import BaseModel, Field
 from uuid import UUID
-from typing import Optional
+from datetime import datetime
+from typing import Any, Optional
 from app.game.models import Archetype
 
 
@@ -55,3 +56,49 @@ class TargetDto(BaseModel):
 class WhisperDto(TargetDto):
     message: str = Field(..., min_length=1, max_length=500)
     room: str = Field(default="general", min_length=1, max_length=64)
+
+
+class QuestRewardDto(BaseModel):
+    quest_key: str = Field(..., min_length=1, max_length=64)
+
+
+class ShardLedgerResponse(BaseModel):
+    id: UUID
+    delta: int
+    reason: str
+    meta: dict[str, Any] | None
+    balance_after: int
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class ShardRewardResponse(BaseModel):
+    msg: str
+    delta: int
+    balance: int
+    ledger: ShardLedgerResponse | None = None
+
+
+class FactionPulseItem(BaseModel):
+    archetype: Archetype
+    count: int
+    share: float
+    role: str
+    pressure_to: Archetype | None
+    threat_from: Archetype | None
+
+
+class FactionPulseEdge(BaseModel):
+    source: Archetype
+    target: Archetype
+    relation: str
+    active_pairs: int
+    opportunity: str
+
+
+class FactionPulseResponse(BaseModel):
+    total_players: int
+    factions: list[FactionPulseItem]
+    edges: list[FactionPulseEdge]
+    user_recommendation: str

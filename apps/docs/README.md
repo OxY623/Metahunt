@@ -1,41 +1,36 @@
-# Website
+# MetaHunt Docs
 
-This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
+Project documentation app built with Docusaurus in apps/docs.
 
-## Installation
+## Requirements
 
-```bash
-yarn
-```
+- Node.js 20+
+- pnpm 9+
 
-## Local Development
+## Install dependencies
 
-```bash
-yarn start
-```
+From repository root:
 
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
+    pnpm install
 
-## Build
+## Run docs locally
 
-```bash
-yarn build
-```
+    pnpm -C apps/docs start
 
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
+Docs will be available at http://localhost:3001.
 
-## Deployment
+## Build docs
 
-Using SSH:
+    pnpm -C apps/docs build
 
-```bash
-USE_SSH=true yarn deploy
-```
+Static output is generated to apps/docs/build.
 
-Not using SSH:
+## Serve production build locally
 
-```bash
-GIT_USER=<Your GitHub username> yarn deploy
-```
+    pnpm -C apps/docs serve
 
-If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+## Helpful
+
+Run all apps from repository root:
+
+    pnpm dev
