@@ -9,6 +9,7 @@ from app.balance import FOX_TAX_SHARE
 from app.economy.models import ShardLedger
 from app.game.models import GameProfile, Archetype
 from app.game.schemas import ChooseArchetypeDto
+from app.game.tasks import QUEST_REWARDS, TASKS, TASK_BY_KEY, ArchetypeTask
 
 
 def xp_to_next_level(level: int) -> int:
@@ -36,14 +37,33 @@ DEMO_REWARDS = {
     "geo_checkin_reward": 8,
 }
 
-QUEST_REWARDS = {
-    "first_move": {"reward": 15, "daily_limit": 1},
-    "response_spark": {"reward": 8, "daily_limit": 5},
-    "oxy_hunt_power": {"reward": 12, "daily_limit": 5, "archetype": Archetype.OXY},
-    "foxy_beautiful_lie": {"reward": 12, "daily_limit": 5, "archetype": Archetype.FOXY},
-    "bear_control_seal": {"reward": 12, "daily_limit": 5, "archetype": Archetype.BEAR},
-    "owl_silent_price": {"reward": 20, "daily_limit": 3, "archetype": Archetype.OWL},
-    "district_voice": {"reward": 10, "daily_limit": 2},
+REASON_TITLES = {
+    "daily_login": "Ежедневный вход",
+    "first_message": "Первый след в чате",
+    "quest_reward": "Задача выполнена",
+    "counter_reward": "Контр-ход",
+    "response_reward": "Ответ сети",
+    "owl_deal": "Сделка Совы",
+    "skill_cost": "Цена действия",
+    "tax": "Налог Медведя",
+    "tax_income": "Доход от налога",
+}
+
+SKILL_TITLES = {
+    "glitch": "Глитч",
+    "direct_strike": "Прямой удар",
+    "golden_shield": "Золотой щит",
+    "ban": "Блокировка порта",
+    "whisper": "Шёпот",
+    "owl_deal": "Сделка Совы",
+}
+
+SCREEN_LABELS = {
+    "dashboard": "оперативная панель",
+    "chat": "чат",
+    "map": "карта",
+    "posts": "постинг",
+    "invites": "инвайты",
 }
 
 FACTION_ROLES = {
@@ -115,6 +135,22 @@ class GameService:
         rows = list((await self.session.execute(stmt)).scalars().all())
         return sum(row.delta for row in rows)
 
+    async def _task_progress_count(self, user_id: UUID, task: ArchetypeTask) -> int:
+        if task.key == "daily_login":
+            return await self._daily_reason_count(user_id, "daily_login")
+        if task.key == "first_message":
+            return await self._daily_reason_count(user_id, "first_message")
+        quest_count = await self._daily_reason_count(user_id, "quest_reward", task.key)
+        if task.key == "oxy_hunt_power":
+            return max(quest_count, await self._daily_reason_count(user_id, "counter_reward", "direct_strike"))
+        if task.key == "foxy_beautiful_lie":
+            return max(quest_count, await self._daily_reason_count(user_id, "counter_reward", "glitch"))
+        if task.key == "bear_control_seal":
+            return max(quest_count, await self._daily_reason_count(user_id, "counter_reward", "ban"))
+        if task.key == "owl_silent_price":
+            return max(quest_count, await self._daily_reason_count(user_id, "owl_deal"))
+        return quest_count
+
     async def list_ledger(self, user_id: UUID, limit: int = 20) -> list[ShardLedger]:
         stmt = (
             select(ShardLedger)
@@ -123,6 +159,80 @@ class GameService:
             .limit(limit)
         )
         return list((await self.session.execute(stmt)).scalars().all())
+
+    async def list_activity(self, user_id: UUID, limit: int = 20) -> list[dict]:
+        ledger = await self.list_ledger(user_id, limit=limit)
+        return [self._activity_from_ledger(entry) for entry in ledger]
+
+    def _activity_from_ledger(self, entry: ShardLedger) -> dict:
+        meta = entry.meta or {}
+        task_key = meta.get("key") if isinstance(meta.get("key"), str) else None
+        task = TASK_BY_KEY.get(task_key) if task_key else None
+        skill = meta.get("skill") or meta.get("key") or meta.get("trigger")
+        skill_title = SKILL_TITLES.get(str(skill), str(skill).replace("_", " ").title()) if skill else None
+
+        title = REASON_TITLES.get(entry.reason, entry.reason.replace("_", " ").title())
+        screen = None
+        description = "Баланс Осколков изменился."
+
+        if task:
+            title = task.title
+            screen = task.screen
+            description = f"{task.description} Следующий ход: {task.next_hint}"
+        elif entry.reason == "daily_login":
+            title = TASK_BY_KEY["daily_login"].title
+            screen = "dashboard"
+            description = TASK_BY_KEY["daily_login"].next_hint
+        elif entry.reason == "first_message":
+            title = TASK_BY_KEY["first_message"].title
+            screen = "chat"
+            description = TASK_BY_KEY["first_message"].next_hint
+        elif entry.reason == "counter_reward":
+            title = f"Контр-ход: {skill_title}" if skill_title else "Контр-ход"
+            screen = "chat"
+            description = "Фракционное давление засчитано и оплачено Осколками."
+        elif entry.reason == "owl_deal":
+            title = "Сова продала сигнал"
+            screen = "chat"
+            description = "Информация стала ресурсом и сдвинула баланс фракций."
+        elif entry.reason == "skill_cost":
+            source = meta.get("source")
+            if source == "map_ping":
+                title = "Ping района"
+                screen = "map"
+                description = f"Сигнал {meta.get('ping_type', 'map')} отправлен в tile {meta.get('tile_id', 'unknown')}."
+            elif source == "post":
+                title = "Публикация усилена"
+                screen = "posts"
+                description = "Осколки потрачены на boost или анонимность поста."
+            elif skill_title:
+                title = f"Цена: {skill_title}"
+                screen = "chat"
+                description = "Осколки потрачены на фракционный навык."
+        elif entry.reason == "tax":
+            title = "Налог за визит"
+            screen = "chat"
+            description = "Переход между архетипами включил экономику Медведя."
+        elif entry.reason == "tax_income":
+            title = "Фракционный налог"
+            description = "Часть чужого действия попала в казну фракции."
+
+        if screen:
+            description = f"{description} Экран: {SCREEN_LABELS.get(screen, screen)}."
+
+        return {
+            "id": entry.id,
+            "title": title,
+            "description": description,
+            "delta": entry.delta,
+            "balance_after": entry.balance_after,
+            "reason": entry.reason,
+            "task_key": task_key,
+            "screen": screen,
+            "tone": "gain" if entry.delta >= 0 else "spend",
+            "meta": entry.meta,
+            "created_at": entry.created_at,
+        }
 
     async def faction_pulse(self, user_id: UUID) -> dict:
         profile = await self.get_or_create_profile(user_id)
@@ -178,20 +288,88 @@ class GameService:
             )
 
         recommendation = "Выбери архетип, чтобы увидеть свою роль в общем конфликте."
+        recommended_task_key = None
         if profile.archetype == Archetype.FOXY:
             recommendation = "Ищи OXY в активной комнате: твой глитч запускает давление и кормит контр-награду."
+            recommended_task_key = "foxy_beautiful_lie"
         elif profile.archetype == Archetype.OXY:
             recommendation = "Твоя цель - BEAR. Маркер и прямой удар ломают контроль самой тяжелой фракции."
+            recommended_task_key = "oxy_hunt_power"
         elif profile.archetype == Archetype.BEAR:
             recommendation = "Держи FOXY под блокировкой и собирай налоги: ты превращаешь хаос в казну."
+            recommended_task_key = "bear_control_seal"
         elif profile.archetype == Archetype.OWL:
             recommendation = "Смотри на перекос сил и продавай сигнал слабой стороне: так интрига не тухнет."
+            recommended_task_key = "owl_silent_price"
 
         return {
             "total_players": total,
             "factions": factions,
             "edges": edges,
             "user_recommendation": recommendation,
+            "recommended_task_key": recommended_task_key,
+        }
+
+    async def list_tasks(self, user_id: UUID) -> dict:
+        profile = await self.get_or_create_profile(user_id)
+        items = []
+
+        for task in TASKS:
+            locked = task.archetype is not None and task.archetype != profile.archetype
+            if profile.archetype is None and task.trigger in {"skill_or_trade", "direct_strike", "glitch", "ban", "golden_shield", "owl_deal", "whisper"}:
+                locked = True
+            progress = await self._task_progress_count(user_id, task)
+            item = {
+                "key": task.key,
+                "title": task.title,
+                "description": task.description,
+                "archetype": task.archetype,
+                "screen": task.screen,
+                "trigger": task.trigger,
+                "reward_reason": task.reward_reason,
+                "reward_shards": task.reward_shards,
+                "daily_limit": task.daily_limit,
+                "progress": min(progress, task.daily_limit),
+                "completed": progress >= task.daily_limit,
+                "locked": locked,
+                "contributes_to": task.contributes_to,
+                "next_hint": task.next_hint,
+                "slot": task.slot,
+            }
+            items.append(item)
+
+        pulse = await self.faction_pulse(user_id)
+        pulse_key = pulse.get("recommended_task_key")
+        recommended = []
+        for preferred_slot in ("daily", "archetype", "pulse"):
+            match = next(
+                (
+                    item
+                    for item in items
+                    if item["slot"] == preferred_slot
+                    and not item["locked"]
+                    and not item["completed"]
+                ),
+                None,
+            )
+            if match:
+                recommended.append(match)
+        if pulse_key and not any(item["key"] == pulse_key for item in recommended):
+            pulse_match = next(
+                (
+                    item
+                    for item in items
+                    if item["key"] == pulse_key and not item["locked"] and not item["completed"]
+                ),
+                None,
+            )
+            if pulse_match:
+                recommended.insert(0, pulse_match)
+
+        return {
+            "items": items,
+            "recommended": recommended,
+            "user_archetype": profile.archetype,
         }
 
     async def add_shards(
@@ -278,24 +456,35 @@ class GameService:
         quest_key: str,
     ) -> tuple[GameProfile, ShardLedger | None]:
         profile = await self.get_or_create_profile(user_id)
+        ledger = await self.grant_task_reward(profile, quest_key)
+        await self.session.commit()
+        await self.session.refresh(profile)
+        return profile, ledger
+
+    async def grant_task_reward(
+        self,
+        profile: GameProfile,
+        quest_key: str,
+        meta: dict | None = None,
+    ) -> ShardLedger | None:
         quest = QUEST_REWARDS.get(quest_key)
         if not quest:
             raise HTTPException(status_code=404, detail="unknown_quest")
         required_archetype = quest.get("archetype")
         if required_archetype and profile.archetype != required_archetype:
             raise HTTPException(status_code=403, detail="wrong_archetype")
-        count = await self._daily_reason_count(user_id, "quest_reward", quest_key)
+        count = await self._daily_reason_count(profile.user_id, "quest_reward", quest_key)
         if count >= int(quest["daily_limit"]):
-            return profile, None
-        ledger = await self.add_shards(
+            return None
+        payload = {"key": quest_key, "source": "task"}
+        if meta:
+            payload.update(meta)
+        return await self.add_shards(
             profile,
             int(quest["reward"]),
             "quest_reward",
-            {"key": quest_key, "source": "demo_loop"},
+            payload,
         )
-        await self.session.commit()
-        await self.session.refresh(profile)
-        return profile, ledger
 
     async def grant_counter_reward(
         self,

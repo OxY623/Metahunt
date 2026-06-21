@@ -78,4 +78,5 @@ async def redeem_invite(
         status=payload["status"],
         inviter=RedeemInviter(id=payload["inviter_id"], archetype=payload["inviter_archetype"]),
         reward=RedeemReward(**payload["reward"]),
+        task_rewards=payload["task_rewards"],
     )

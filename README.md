@@ -54,3 +54,15 @@ pnpm dev
 ## Документация
 
 Запуск: `cd apps/docs && pnpm start` → http://localhost:3001
+
+## Бесплатный деплой
+
+Да, окружение можно развернуть бесплатно или почти бесплатно для MVP.
+Самый простой вариант:
+
+- `apps/web`: Vercel Hobby или Netlify Free. Указать `NEXT_PUBLIC_API_URL` на URL API.
+- `apps/api`: Render Free Web Service. Команда запуска: `uvicorn main:app --host 0.0.0.0 --port $PORT`, рабочая директория `apps/api`.
+- PostgreSQL: Supabase Free или Neon Free. В API добавить `DATABASE_URL`, `SECRET_KEY`, `ALGORITHM=HS256`.
+- `apps/docs`: GitHub Pages, Vercel или Netlify как статический сайт Docusaurus.
+
+Ограничение бесплатных API-хостингов: сервис может засыпать при простое, поэтому первый запрос после паузы будет медленнее. Для демо и разработки этого обычно хватает.

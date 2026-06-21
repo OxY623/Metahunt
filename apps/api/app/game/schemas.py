@@ -80,6 +80,20 @@ class ShardRewardResponse(BaseModel):
     ledger: ShardLedgerResponse | None = None
 
 
+class GameActivityItemResponse(BaseModel):
+    id: UUID
+    title: str
+    description: str
+    delta: int
+    balance_after: int
+    reason: str
+    task_key: str | None = None
+    screen: str | None = None
+    tone: str
+    meta: dict[str, Any] | None
+    created_at: datetime
+
+
 class FactionPulseItem(BaseModel):
     archetype: Archetype
     count: int
@@ -102,3 +116,28 @@ class FactionPulseResponse(BaseModel):
     factions: list[FactionPulseItem]
     edges: list[FactionPulseEdge]
     user_recommendation: str
+    recommended_task_key: str | None = None
+
+
+class ArchetypeTaskResponse(BaseModel):
+    key: str
+    title: str
+    description: str
+    archetype: Archetype | None
+    screen: str
+    trigger: str
+    reward_reason: str
+    reward_shards: int
+    daily_limit: int
+    progress: int
+    completed: bool
+    locked: bool
+    contributes_to: str
+    next_hint: str
+    slot: str
+
+
+class ArchetypeTasksResponse(BaseModel):
+    items: list[ArchetypeTaskResponse]
+    recommended: list[ArchetypeTaskResponse]
+    user_archetype: Archetype | None

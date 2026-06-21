@@ -140,6 +140,22 @@ class InviteService:
             "invite_reward",
             {"invite_id": str(invite.id), "code": invite.code},
         )
+        task_rewards = []
+        use_invite_reward = await self.game.grant_task_reward(
+            inviter_profile,
+            "use_invite",
+            {"trigger": "invite_redeemed", "invite_id": str(invite.id), "code": invite.code},
+        )
+        if use_invite_reward:
+            task_rewards.append(use_invite_reward)
+        if inviter_profile.archetype == Archetype.FOXY:
+            foxy_invite_reward = await self.game.grant_task_reward(
+                inviter_profile,
+                "foxy_fast_invite",
+                {"trigger": "invite_redeemed", "invite_id": str(invite.id), "code": invite.code},
+            )
+            if foxy_invite_reward:
+                task_rewards.append(foxy_invite_reward)
         if tax_to_bear:
             await self.game._award_to_archetype(
                 Archetype.BEAR,
@@ -174,4 +190,5 @@ class InviteService:
                 "tax_to_bear": tax_to_bear,
                 "tax_to_fox": tax_to_fox,
             },
+            "task_rewards": [item.meta.get("key") for item in task_rewards if item.meta],
         }

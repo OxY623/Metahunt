@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-
+import './page.css';
 import {
   getMapClusters,
   getMapTiles,
@@ -24,6 +24,7 @@ import { Panel } from "../../shared/ui/Panel";
 import { Button } from "../../shared/ui/Button";
 import { Input } from "../../shared/ui/Input";
 import { Badge } from "../../shared/ui/Badge";
+import { TaskHints } from "../../features/game/ui/TaskHints";
 import type { GeoMapViewport } from "../../widgets/map/GeoMap";
 
 const GeoMap = dynamic(
@@ -76,6 +77,7 @@ export default function MapPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [taskRefreshKey, setTaskRefreshKey] = useState(0);
 
   const lastTilesRequestAt = useRef(0);
   const lastActionAt = useRef(0);
@@ -198,12 +200,16 @@ export default function MapPage() {
       });
 
       setSelectedTileId(result.tile_id);
-      setInfo(`Check-in выполнен. Tile ${result.tile_id}, энергия: ${result.energy_after}.`);
+      setInfo(
+        `Check-in выполнен. Tile ${result.tile_id}, энергия: ${result.energy_after}${result.shards_rewarded ? `, +${result.shards_rewarded} shards` : ""
+        }.`,
+      );
 
       if (viewport) {
         await fetchTiles(viewport, true);
       }
       await refreshProfile();
+      setTaskRefreshKey((value) => value + 1);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Ошибка check-in");
     } finally {
@@ -252,13 +258,15 @@ export default function MapPage() {
       });
 
       setInfo(
-        `Ping ${response.ping_type} отправлен в ${response.tile_id}. Потрачено: ${response.shards_spent} shards.`,
+        `Ping ${response.ping_type} отправлен в ${response.tile_id}. Потрачено: ${response.shards_spent} shards${response.shards_rewarded ? `, +${response.shards_rewarded}` : ""
+        }.`,
       );
 
       if (viewport) {
         await fetchTiles(viewport, true);
       }
       await refreshProfile();
+      setTaskRefreshKey((value) => value + 1);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Ошибка ping");
     } finally {
@@ -405,6 +413,8 @@ export default function MapPage() {
           </div>
 
           <div className="space-y-6">
+            <TaskHints token={token} screen="map" refreshKey={taskRefreshKey} />
+
             <Panel variant="cyan" className="space-y-5">
               <div className="text-xs uppercase tracking-[0.26em] text-text-dim">Действия</div>
 

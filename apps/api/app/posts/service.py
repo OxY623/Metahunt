@@ -132,8 +132,25 @@ class PostsService:
                 )
             )
 
+        task_rewards = []
+        district_reward = await self.game.grant_task_reward(
+            profile,
+            "district_voice",
+            {"trigger": "post_created", "post_id": str(post.id), "geo_tile": dto.geo_tile},
+        )
+        if district_reward:
+            task_rewards.append(district_reward)
+        if profile.archetype and profile.archetype.value == "FOXY" and dto.is_anonymous and dto.geo_tile:
+            masked_reward = await self.game.grant_task_reward(
+                profile,
+                "foxy_masked_signal",
+                {"trigger": "anonymous_geo_post", "post_id": str(post.id), "geo_tile": dto.geo_tile},
+            )
+            if masked_reward:
+                task_rewards.append(masked_reward)
+
         await self.session.commit()
         await self.session.refresh(profile)
 
         created = await self.get_post_or_404(post.id)
-        return created, shards_spent, profile
+        return created, shards_spent, profile, task_rewards

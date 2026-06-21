@@ -59,6 +59,9 @@ class CheckinResponse(BaseModel):
     visibility: str
     next_allowed_at: datetime
     energy_after: int
+    shards_rewarded: int = 0
+    shards_balance: int
+    task_rewards: list[str] = Field(default_factory=list)
 
 
 class PingDto(BaseModel):
@@ -73,3 +76,5 @@ class PingResponse(BaseModel):
     effect_until: datetime
     shards_spent: int
     shards_balance: int
+    shards_rewarded: int = 0
+    task_rewards: list[str] = Field(default_factory=list)

@@ -60,5 +60,7 @@ class CreatePostDto(BaseModel):
 class CreatePostResponse(BaseModel):
     post: PostResponse
     shards_spent: int
+    shards_rewarded: int = 0
     shards_balance: int
     energy_after: int
+    task_rewards: list[str] = Field(default_factory=list)

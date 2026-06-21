@@ -228,6 +228,11 @@ class MapService:
             created_at=now,
         )
         self.session.add(event)
+        task_reward = await self.game.grant_task_reward(
+            profile,
+            "geo_first_checkin",
+            {"trigger": "map_checkin", "tile_id": tile_id},
+        )
 
         await self.session.commit()
         await self.session.refresh(profile)
@@ -237,6 +242,9 @@ class MapService:
             "visibility": dto.visibility,
             "next_allowed_at": now + CHECKIN_COOLDOWN,
             "energy_after": profile.energy,
+            "shards_rewarded": task_reward.delta if task_reward else 0,
+            "shards_balance": profile.shards,
+            "task_rewards": [task_reward.meta.get("key")] if task_reward and task_reward.meta else [],
         }
 
     async def ping(self, current_user: User, dto: PingDto):
@@ -279,6 +287,13 @@ class MapService:
             created_at=now,
         )
         self.session.add(event)
+        task_reward = None
+        if profile.archetype and profile.archetype.value == "OXY" and dto.ping_type == "hunt":
+            task_reward = await self.game.grant_task_reward(
+                profile,
+                "oxy_mark_tile",
+                {"trigger": "map_ping:hunt", "tile_id": dto.tile_id},
+            )
 
         await self.session.commit()
         await self.session.refresh(event)
@@ -290,5 +305,7 @@ class MapService:
             "tile_id": dto.tile_id,
             "effect_until": now + PING_EFFECT,
             "shards_spent": shards_cost,
+            "shards_rewarded": task_reward.delta if task_reward else 0,
             "shards_balance": profile.shards,
+            "task_rewards": [task_reward.meta.get("key")] if task_reward and task_reward.meta else [],
         }

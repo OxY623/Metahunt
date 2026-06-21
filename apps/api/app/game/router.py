@@ -11,7 +11,9 @@ from app.users.models import User
 from app.game.service import GameService
 from app.game.schemas import (
     ChooseArchetypeDto,
+    ArchetypeTasksResponse,
     FactionPulseResponse,
+    GameActivityItemResponse,
     GameProfileResponse,
     QuestRewardDto,
     ShardLedgerResponse,
@@ -53,6 +55,10 @@ def _require_counter_relation(source, target, detail: str) -> None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
 
 
+def _reward_delta(*ledgers) -> int:
+    return sum(ledger.delta for ledger in ledgers if ledger is not None and ledger.delta > 0)
+
+
 @router.get("/profile", response_model=GameProfileResponse)
 async def get_profile(
     current_user: User = Depends(get_current_user),
@@ -70,12 +76,28 @@ async def get_shards_ledger(
     return await service.list_ledger(current_user.id, limit=20)
 
 
+@router.get("/activity", response_model=list[GameActivityItemResponse])
+async def get_activity(
+    current_user: User = Depends(get_current_user),
+    service: GameService = Depends(get_game_service),
+):
+    return await service.list_activity(current_user.id, limit=20)
+
+
 @router.get("/factions/pulse", response_model=FactionPulseResponse)
 async def get_faction_pulse(
     current_user: User = Depends(get_current_user),
     service: GameService = Depends(get_game_service),
 ):
     return await service.faction_pulse(current_user.id)
+
+
+@router.get("/tasks", response_model=ArchetypeTasksResponse)
+async def get_tasks(
+    current_user: User = Depends(get_current_user),
+    service: GameService = Depends(get_game_service),
+):
+    return await service.list_tasks(current_user.id)
 
 
 @router.post("/rewards/daily-login", response_model=ShardRewardResponse)
@@ -168,11 +190,14 @@ async def skill_glitch(
     )
     set_effect(dto.target_id, "glitch", 30)
     reward = await service.grant_counter_reward(profile, target, "glitch")
+    first_move = await service.grant_task_reward(profile, "first_move", {"trigger": "glitch"})
+    task_reward = await service.grant_task_reward(profile, "foxy_beautiful_lie", {"trigger": "glitch", "target_id": str(target.user_id)})
     await service.session.commit()
     return {
         "msg": "Экран цели заглючен на 30 секунд.",
         "shards_spent": skill_cost,
-        "shards_rewarded": reward.delta if reward else 0,
+        "shards_rewarded": _reward_delta(reward, first_move, task_reward),
+        "task_rewards": [ledger.meta.get("key") for ledger in (first_move, task_reward) if ledger and ledger.meta],
         "shards_balance": profile.shards,
     }
 
@@ -199,11 +224,14 @@ async def skill_direct_strike(
     )
     target.xp = max(0, target.xp - 5)
     reward = await service.grant_counter_reward(profile, target, "direct_strike")
+    first_move = await service.grant_task_reward(profile, "first_move", {"trigger": "direct_strike"})
+    task_reward = await service.grant_task_reward(profile, "oxy_hunt_power", {"trigger": "direct_strike", "target_id": str(target.user_id)})
     await service.session.commit()
     return {
         "msg": "Прямой удар нанесён. Противник потерял 5 XP.",
         "shards_spent": skill_cost,
-        "shards_rewarded": reward.delta if reward else 0,
+        "shards_rewarded": _reward_delta(reward, first_move, task_reward),
+        "task_rewards": [ledger.meta.get("key") for ledger in (first_move, task_reward) if ledger and ledger.meta],
         "shards_balance": profile.shards,
     }
 
@@ -223,8 +251,16 @@ async def skill_golden_shield(
         {"skill": "golden_shield"},
     )
     set_effect(current_user.id, "shield", 300)
+    first_move = await service.grant_task_reward(profile, "first_move", {"trigger": "golden_shield"})
+    task_reward = await service.grant_task_reward(profile, "bear_raise_shield", {"trigger": "golden_shield"})
     await service.session.commit()
-    return {"msg": "Золотой щит активирован на 5 минут.", "shards_spent": skill_cost, "shards_balance": profile.shards}
+    return {
+        "msg": "Золотой щит активирован на 5 минут.",
+        "shards_spent": skill_cost,
+        "shards_rewarded": _reward_delta(first_move, task_reward),
+        "task_rewards": [ledger.meta.get("key") for ledger in (first_move, task_reward) if ledger and ledger.meta],
+        "shards_balance": profile.shards,
+    }
 
 
 @router.post("/skills/ban")
@@ -250,11 +286,14 @@ async def skill_ban(
     target.energy = max(0, target.energy - 10)
     set_effect(dto.target_id, "ban", 60)
     reward = await service.grant_counter_reward(profile, target, "ban")
+    first_move = await service.grant_task_reward(profile, "first_move", {"trigger": "ban"})
+    task_reward = await service.grant_task_reward(profile, "bear_control_seal", {"trigger": "ban", "target_id": str(target.user_id)})
     await service.session.commit()
     return {
         "msg": "Порт цели временно заблокирован (-10 энергии).",
         "shards_spent": skill_cost,
-        "shards_rewarded": reward.delta if reward else 0,
+        "shards_rewarded": _reward_delta(reward, first_move, task_reward),
+        "task_rewards": [ledger.meta.get("key") for ledger in (first_move, task_reward) if ledger and ledger.meta],
         "shards_balance": profile.shards,
     }
 
@@ -284,11 +323,15 @@ async def skill_whisper(
         effect="whisper",
         effect_payload=payload,
     )
+    first_move = await service.grant_task_reward(profile, "first_move", {"trigger": "whisper"})
+    task_reward = await service.grant_task_reward(profile, "owl_whisper_seed", {"trigger": "whisper", "target_id": str(dto.target_id)})
     await chat.session.commit()
     await service.session.commit()
     return {
         "msg": "Шёпот отправлен анонимно.",
         "shards_spent": skill_cost,
+        "shards_rewarded": _reward_delta(first_move, task_reward),
+        "task_rewards": [ledger.meta.get("key") for ledger in (first_move, task_reward) if ledger and ledger.meta],
         "shards_balance": profile.shards,
         "payload": {"to": str(dto.target_id), "message_id": str(msg.id)},
     }
@@ -307,15 +350,17 @@ async def skill_owl_deal(
     if get_relation(profile.archetype, target.archetype) != RelationType.TRADE:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Сделка доступна только по торговой связи")
     ledger = await service.grant_owl_deal(profile, target)
+    first_move = await service.grant_task_reward(profile, "first_move", {"trigger": "owl_deal"})
     await service.session.commit()
     if ledger is None:
         return {
             "msg": "Лимит сделок Совы на сегодня исчерпан.",
-            "shards_rewarded": 0,
+            "shards_rewarded": _reward_delta(first_move),
             "shards_balance": profile.shards,
         }
     return {
         "msg": "Сова продала сигнал и получила Осколки.",
-        "shards_rewarded": ledger.delta,
+        "shards_rewarded": _reward_delta(ledger, first_move),
+        "task_rewards": [item.meta.get("key") for item in (first_move,) if item and item.meta],
         "shards_balance": profile.shards,
     }

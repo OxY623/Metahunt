@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   adminListUsers,
+  adminSeedDemo,
   adminUpdateUserRole,
   getMe,
   type AdminUser,
@@ -21,6 +22,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [demoMsg, setDemoMsg] = useState<string | null>(null);
 
   useEffect(() => {
     const t =
@@ -66,6 +68,25 @@ export default function AdminPage() {
     }
   };
 
+  const handleSeedDemo = async () => {
+    if (!token) return;
+    setUpdatingId("demo-seed");
+    setError(null);
+    setDemoMsg(null);
+    try {
+      const seed = await adminSeedDemo(token);
+      const list = await adminListUsers(token, { limit: 100, offset: 0 });
+      setUsers(list);
+      setDemoMsg(
+        `Demo ready: ${seed.users.map((u) => u.email).join(", ")} / password ${seed.password}`,
+      );
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Не удалось создать demo seed");
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
   if (!token) {
     return (
       <main className="min-h-screen flex items-center justify-center text-text-muted">
@@ -95,6 +116,11 @@ export default function AdminPage() {
             {error}
           </div>
         )}
+        {demoMsg && (
+          <div className="cyber-border-cyan bg-brand-cyan/10 text-brand-cyan px-4 py-3 rounded mb-4 text-sm">
+            {demoMsg}
+          </div>
+        )}
 
         {loading ? (
           <p className="text-text-muted text-sm">Загрузка...</p>
@@ -104,9 +130,20 @@ export default function AdminPage() {
           </p>
         ) : (
           <Panel className="space-y-4">
-            <h2 className="font-display text-xl tracking-widest neon-text-cyan">
-              Пользователи
-            </h2>
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <h2 className="font-display text-xl tracking-widest neon-text-cyan">
+                Пользователи
+              </h2>
+              <Button
+                type="button"
+                variant="pink"
+                size="sm"
+                disabled={updatingId === "demo-seed"}
+                onClick={handleSeedDemo}
+              >
+                Seed demo
+              </Button>
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm border-collapse">
                 <thead>

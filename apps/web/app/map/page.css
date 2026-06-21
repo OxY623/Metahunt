@@ -1,0 +1,5 @@
+/* leaflet hidden  */
+.leaflet-control-attribution.leaflet-control {
+  visibility: hidden !important;
+  display: none !important;
+}

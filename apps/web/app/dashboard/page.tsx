@@ -18,8 +18,12 @@ import { UserAvatar } from "../../entities/user/ui/UserAvatar";
 import {
   claimDailyLogin,
   claimQuestReward,
-  getShardLedger,
-  type ShardLedgerEntry,
+  getArchetypeTasks,
+  getFactionPulse,
+  getGameActivity,
+  type ArchetypeTask,
+  type FactionPulseResponse,
+  type GameActivityItem,
 } from "../../lib/api";
 
 const QUICK_LINKS = [
@@ -34,7 +38,9 @@ export default function DashboardPage() {
   const { token, user, loading } = useSession();
   const { profile, refresh } = useGameProfile(token, Boolean(token));
   const [actionMsg, setActionMsg] = useState<string | null>(null);
-  const [ledger, setLedger] = useState<ShardLedgerEntry[]>([]);
+  const [activity, setActivity] = useState<GameActivityItem[]>([]);
+  const [tasks, setTasks] = useState<ArchetypeTask[]>([]);
+  const [pulse, setPulse] = useState<FactionPulseResponse | null>(null);
   const [rewardLoading, setRewardLoading] = useState<string | null>(null);
 
   useEffect(() => {
@@ -43,14 +49,30 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!token) return;
-    getShardLedger(token).then(setLedger).catch(() => setLedger([]));
+    Promise.all([getGameActivity(token), getArchetypeTasks(token), getFactionPulse(token)])
+      .then(([activityItems, taskData, pulseData]) => {
+        setActivity(activityItems);
+        setTasks(taskData.recommended);
+        setPulse(pulseData);
+      })
+      .catch(() => {
+        setActivity([]);
+        setTasks([]);
+        setPulse(null);
+      });
   }, [token, profile?.shards]);
 
   const refreshEconomy = async () => {
     await refresh();
     if (token) {
-      const items = await getShardLedger(token);
-      setLedger(items);
+      const [items, taskData, pulseData] = await Promise.all([
+        getGameActivity(token),
+        getArchetypeTasks(token),
+        getFactionPulse(token),
+      ]);
+      setActivity(items);
+      setTasks(taskData.recommended);
+      setPulse(pulseData);
     }
   };
 
@@ -76,6 +98,23 @@ export default function DashboardPage() {
     if (!profile || profile.xp_to_next <= 0) return 0;
     return Math.max(0, Math.min(100, Math.round((profile.xp / profile.xp_to_next) * 100)));
   }, [profile]);
+
+  const pulseTask = useMemo(
+    () =>
+      pulse?.recommended_task_key
+        ? tasks.find((task) => task.key === pulse.recommended_task_key) ?? null
+        : null,
+    [pulse?.recommended_task_key, tasks],
+  );
+
+  const openTask = async (task: ArchetypeTask) => {
+    if (task.key === "daily_login") {
+      await claimReward("daily");
+      return;
+    }
+    const target = task.screen === "dashboard" ? "/dashboard" : `/${task.screen}`;
+    router.push(target);
+  };
 
   if (loading) {
     return <LoadingScreen />;
@@ -183,41 +222,53 @@ export default function DashboardPage() {
             {profile && (
               <Panel className="space-y-4">
                 <div className="flex items-center justify-between gap-3 flex-wrap">
-                  <div className="text-xs uppercase tracking-[0.24em] text-text-dim">Демо-экономика</div>
+                  <div className="text-xs uppercase tracking-[0.24em] text-text-dim">Задачи архетипа</div>
                   <Badge tone="cyan">Баланс: {profile.shards}</Badge>
                 </div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <button
-                    type="button"
-                    disabled={rewardLoading === "daily"}
-                    onClick={() => claimReward("daily")}
-                    className="vibe-option disabled:opacity-50"
-                  >
-                    <span className="vibe-option__title">Ежедневный вход</span>
-                    <span className="vibe-option__desc">+10 Осколков, один раз в день</span>
-                  </button>
-                  <button
-                    type="button"
-                    disabled={rewardLoading === "first_move"}
-                    onClick={() => claimReward("quest", "first_move")}
-                    className="vibe-option disabled:opacity-50"
-                  >
-                    <span className="vibe-option__title">Первый ход</span>
-                    <span className="vibe-option__desc">+15 за применение фракционного действия</span>
-                  </button>
-                </div>
+                {tasks.length === 0 ? (
+                  <div className="text-xs text-text-dim">
+                    На сегодня явных задач нет. Иди в чат, карту или посты, чтобы двигать фракцию дальше.
+                  </div>
+                ) : (
+                  <div className="grid gap-3">
+                    {tasks.map((task) => (
+                      <button
+                        key={task.key}
+                        type="button"
+                        disabled={
+                          rewardLoading === task.key ||
+                          (task.key === "daily_login" && rewardLoading === "daily") ||
+                          task.completed ||
+                          task.locked
+                        }
+                        onClick={() => openTask(task)}
+                        className="vibe-option disabled:opacity-50"
+                      >
+                        <span className="flex items-center justify-between gap-3">
+                          <span className="vibe-option__title">{task.title}</span>
+                          <span className="text-[11px] text-brand-cyan">
+                            {task.progress}/{task.daily_limit} +{task.reward_shards}
+                          </span>
+                        </span>
+                        <span className="vibe-option__desc">{task.description}</span>
+                        <span className="vibe-option__desc">{task.next_hint}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <div className="space-y-2">
-                  <div className="text-xs uppercase tracking-[0.2em] text-text-dim">Последние операции</div>
-                  {ledger.length === 0 ? (
-                    <div className="text-xs text-text-dim">Ledger пока пуст. Забери награду или используй действие.</div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-text-dim">Хроника игры</div>
+                  {activity.length === 0 ? (
+                    <div className="text-xs text-text-dim">Хроника пока пустая. Забери награду или сделай первый ход.</div>
                   ) : (
                     <div className="grid gap-2">
-                      {ledger.slice(0, 6).map((entry) => (
+                      {activity.slice(0, 6).map((entry) => (
                         <div key={entry.id} className="preview-card flex items-center justify-between gap-3">
-                          <div>
-                            <div className="preview-card__title">{entry.reason}</div>
+                          <div className="min-w-0">
+                            <div className="preview-card__title">{entry.title}</div>
+                            <div className="preview-card__line">{entry.description}</div>
                             <div className="preview-card__line">
-                              Баланс после: {entry.balance_after}
+                              {entry.screen ?? entry.reason} · баланс после: {entry.balance_after}
                             </div>
                           </div>
                           <div className={entry.delta >= 0 ? "text-brand-cyan" : "text-brand-pink"}>
@@ -269,6 +320,36 @@ export default function DashboardPage() {
           </div>
 
           <div className="space-y-6">
+            {pulse && (
+              <Panel className="space-y-4">
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  <div className="text-xs uppercase tracking-[0.24em] text-text-dim">Фракционный пульс</div>
+                  <Badge tone="muted">Игроков: {pulse.total_players}</Badge>
+                </div>
+                <div className="text-sm text-text-muted">{pulse.user_recommendation}</div>
+                {pulseTask ? (
+                  <button
+                    type="button"
+                    onClick={() => openTask(pulseTask)}
+                    className="vibe-option"
+                  >
+                    <span className="flex items-center justify-between gap-3">
+                      <span className="vibe-option__title">{pulseTask.title}</span>
+                      <span className="text-[11px] text-brand-cyan">
+                        {pulseTask.progress}/{pulseTask.daily_limit} +{pulseTask.reward_shards}
+                      </span>
+                    </span>
+                    <span className="vibe-option__desc">{pulseTask.next_hint}</span>
+                  </button>
+                ) : pulse.recommended_task_key ? (
+                  <div className="preview-card">
+                    <div className="preview-card__title">Задача пульса закрыта</div>
+                    <div className="preview-card__line">{pulse.recommended_task_key}</div>
+                  </div>
+                ) : null}
+              </Panel>
+            )}
+
             <Panel className="space-y-4">
               <div className="text-xs uppercase tracking-[0.24em] text-text-dim">Управление аккаунтом</div>
               <div className="grid gap-3">

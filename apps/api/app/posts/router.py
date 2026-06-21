@@ -34,12 +34,14 @@ async def create_post(
     current_user: User = Depends(get_current_user),
     service: PostsService = Depends(get_posts_service),
 ):
-    post, shards_spent, profile = await service.create_post(current_user, dto)
+    post, shards_spent, profile, task_rewards = await service.create_post(current_user, dto)
     return CreatePostResponse(
         post=service.to_response(post),
         shards_spent=shards_spent,
+        shards_rewarded=sum(item.delta for item in task_rewards if item.delta > 0),
         shards_balance=profile.shards,
         energy_after=profile.energy,
+        task_rewards=[item.meta.get("key") for item in task_rewards if item.meta],
     )
 
 

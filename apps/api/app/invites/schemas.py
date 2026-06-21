@@ -73,3 +73,4 @@ class RedeemInviteResponse(BaseModel):
     status: str
     inviter: RedeemInviter
     reward: RedeemReward
+    task_rewards: list[str] = Field(default_factory=list)

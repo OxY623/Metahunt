@@ -524,7 +524,11 @@ a {
 }
 .archetype-choice {
   border: 1px solid var(--panel-border);
-  background: linear-gradient(160deg, rgba(8, 14, 26, 0.9), rgba(6, 10, 18, 0.95));
+  background: linear-gradient(
+    160deg,
+    rgba(8, 14, 26, 0.9),
+    rgba(6, 10, 18, 0.95)
+  );
   box-shadow: 0 0 14px rgba(0, 0, 0, 0.35);
 }
 .archetype-choice[data-archetype="FOXY"] {
@@ -566,7 +570,11 @@ a {
   position: relative;
 }
 .sound-toggle {
-  background: linear-gradient(180deg, rgba(8, 14, 26, 0.85), rgba(5, 10, 18, 0.95));
+  background: linear-gradient(
+    180deg,
+    rgba(8, 14, 26, 0.85),
+    rgba(5, 10, 18, 0.95)
+  );
   border: 1px solid var(--panel-border);
   color: var(--text-strong);
   text-transform: uppercase;
@@ -589,7 +597,11 @@ a {
   top: 2.6rem;
   right: 0;
   min-width: 240px;
-  background: linear-gradient(180deg, rgba(9, 15, 27, 0.95), rgba(6, 10, 18, 0.98));
+  background: linear-gradient(
+    180deg,
+    rgba(9, 15, 27, 0.95),
+    rgba(6, 10, 18, 0.98)
+  );
   border: 1px solid var(--panel-border);
   box-shadow: 0 0 22px var(--panel-glow);
   padding: 0.75rem;
@@ -677,7 +689,6 @@ html[data-density="compact"] .sound-panel {
   line-height: 1.2;
 }
 
-
 /* === VIBE PROFILES === */
 html[data-vibe="sunset"] {
   --accent-1: #ff9a62;
@@ -700,8 +711,16 @@ html[data-vibe="matrix"] {
 body {
   position: relative;
   background:
-    radial-gradient(circle at 14% 18%, color-mix(in srgb, var(--accent-1) 22%, transparent), transparent 38%),
-    radial-gradient(circle at 86% 12%, color-mix(in srgb, var(--accent-2) 18%, transparent), transparent 35%),
+    radial-gradient(
+      circle at 14% 18%,
+      color-mix(in srgb, var(--accent-1) 22%, transparent),
+      transparent 38%
+    ),
+    radial-gradient(
+      circle at 86% 12%,
+      color-mix(in srgb, var(--accent-2) 18%, transparent),
+      transparent 35%
+    ),
     linear-gradient(180deg, #080c15 0%, #0b111d 60%, #0a0f1a 100%);
 }
 
@@ -827,7 +846,11 @@ body::before {
   padding: 0.9rem;
   background:
     linear-gradient(145deg, rgba(8, 13, 22, 0.85), rgba(5, 10, 18, 0.96)),
-    radial-gradient(circle at 80% 20%, color-mix(in srgb, var(--accent-1) 24%, transparent), transparent 45%);
+    radial-gradient(
+      circle at 80% 20%,
+      color-mix(in srgb, var(--accent-1) 24%, transparent),
+      transparent 45%
+    );
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.02),
     0 0 16px color-mix(in srgb, var(--accent-1) 22%, transparent);

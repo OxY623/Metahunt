@@ -93,15 +93,5 @@ jobs:
           cd apps/api
           python -m alembic upgrade head
 
-      - name: Test web
-        run: pnpm --filter web test
-
-      - name: Check API
-        # Сейчас в apps/api нет тестовых файлов. Когда они появятся, CI автоматически запустит pytest.
-        run: |
-          api_tests="$(find apps/api -path apps/api/venv -prune -o -type f \( -name 'test_*.py' -o -name '*_test.py' \) -print)"
-          if [ -n "$api_tests" ]; then
-            python -m pytest apps/api
-          else
-            python -c "import sys; sys.path.insert(0, 'apps/api'); from main import app; assert app.title == 'MetaHunt API'"
-          fi
+      - name: Test
+        run: pnpm test

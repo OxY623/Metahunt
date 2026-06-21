@@ -8,6 +8,7 @@ import {
   sendChatMessage,
   getGameProfile,
   getFactionPulse,
+  getGameActivity,
   glitchScreen,
   directStrike,
   goldenShield,
@@ -18,6 +19,7 @@ import {
   type ChatEffect,
   type GameProfileResponse,
   type FactionPulseResponse,
+  type GameActivityItem,
   type Archetype,
   type MessageResponse,
 } from "../../lib/api";
@@ -29,6 +31,7 @@ import { useSession } from "../../shared/model/session";
 import LoadingScreen from "../../shared/ui/LoadingScreen";
 import { SiteHeader } from "../../widgets/site/SiteHeader";
 import { SectionHeading } from "../../shared/ui/SectionHeading";
+import { TaskHints } from "../../features/game/ui/TaskHints";
 import {
   getArchetypeRelation,
   type RelationType,
@@ -84,8 +87,10 @@ export default function ChatPage() {
   const [room, setRoom] = useState<(typeof ROOMS)[number]>("general");
   const [profile, setProfile] = useState<GameProfileResponse | null>(null);
   const [pulse, setPulse] = useState<FactionPulseResponse | null>(null);
+  const [activity, setActivity] = useState<GameActivityItem[]>([]);
   const [effects, setEffects] = useState<ChatEffect[]>([]);
   const [target, setTarget] = useState<SelectedTarget | null>(null);
+  const [taskRefreshKey, setTaskRefreshKey] = useState(0);
   const bottomRef = useRef<HTMLDivElement>(null);
   const fetchRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -135,20 +140,32 @@ export default function ChatPage() {
     }
   }, [token]);
 
+  const fetchActivity = useCallback(async () => {
+    if (!token) return;
+    try {
+      const data = await getGameActivity(token);
+      setActivity(data);
+    } catch {
+      // ignore
+    }
+  }, [token]);
+
   useEffect(() => {
     if (!token) return;
     fetchMessages();
     fetchEffects();
     fetchPulse();
+    fetchActivity();
     fetchRef.current = setInterval(() => {
       fetchMessages();
       fetchEffects();
       fetchPulse();
+      fetchActivity();
     }, POLL_INTERVAL_MS);
     return () => {
       if (fetchRef.current) clearInterval(fetchRef.current);
     };
-  }, [token, room, fetchMessages, fetchEffects, fetchPulse]);
+  }, [token, room, fetchMessages, fetchEffects, fetchPulse, fetchActivity]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -164,6 +181,8 @@ export default function ChatPage() {
       const sent = await sendChatMessage(token, { text: input.trim(), room });
       setMessages((prev) => [...prev, sent]);
       setInput("");
+      setTaskRefreshKey((value) => value + 1);
+      await fetchActivity();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Ошибка отправки");
     } finally {
@@ -224,10 +243,13 @@ export default function ChatPage() {
       if (skill === "owl_deal" && target) result = await owlDeal(token, target.id);
       await fetchEffects();
       await fetchMessages();
+      await fetchPulse();
+      await fetchActivity();
       const nextProfile = await getGameProfile(token);
       setProfile(nextProfile);
       if (skill !== "shield") setTarget(null);
       if (skill === "whisper") setInput("");
+      setTaskRefreshKey((value) => value + 1);
       setInfo(
         result
           ? `${result.msg}${result.shards_spent ? ` -${result.shards_spent} Shards` : ""}${result.shards_rewarded ? `, +${result.shards_rewarded} Shards` : ""}.`
@@ -361,6 +383,13 @@ export default function ChatPage() {
           </Panel>
 
           <div className="space-y-6">
+            <TaskHints
+              token={token}
+              screen="chat"
+              refreshKey={taskRefreshKey}
+              highlightKey={pulse?.recommended_task_key ?? null}
+            />
+
             {profile?.archetype && (
               <Panel className={`space-y-4 border ${theme?.border ?? "border-meta-border"}`}>
                 <div className="text-xs uppercase tracking-[0.22em] text-text-dim">Фракционные навыки</div>
@@ -424,6 +453,35 @@ export default function ChatPage() {
               </div>
             </Panel>
 
+            <Panel className="space-y-3">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <div className="text-xs uppercase tracking-[0.22em] text-text-dim">Хроника хода</div>
+                {profile && <Badge tone="warning">Shards: {profile.shards}</Badge>}
+              </div>
+              {activity.length === 0 ? (
+                <div className="text-xs text-text-dim">
+                  Сделай первый ход: сообщение, навык, сделка или ping появятся здесь.
+                </div>
+              ) : (
+                <div className="grid gap-2">
+                  {activity.slice(0, 5).map((entry) => (
+                    <div key={entry.id} className="preview-card">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="preview-card__title">{entry.title}</div>
+                        <div className={entry.delta >= 0 ? "text-brand-cyan" : "text-brand-pink"}>
+                          {entry.delta >= 0 ? "+" : ""}{entry.delta}
+                        </div>
+                      </div>
+                      <div className="preview-card__line">{entry.description}</div>
+                      <div className="preview-card__line">
+                        {entry.screen ?? entry.reason} · баланс: {entry.balance_after}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Panel>
+
             {pulse && (
               <Panel className="space-y-4">
                 <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -453,6 +511,12 @@ export default function ChatPage() {
                   ))}
                 </div>
                 <div className="text-sm text-text-muted">{pulse.user_recommendation}</div>
+                {pulse.recommended_task_key && (
+                  <div className="preview-card">
+                    <div className="preview-card__title">Задача из пульса</div>
+                    <div className="preview-card__line">{pulse.recommended_task_key}</div>
+                  </div>
+                )}
               </Panel>
             )}
           </div>

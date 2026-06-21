@@ -17,6 +17,7 @@ import { SectionHeading } from "../../shared/ui/SectionHeading";
 import { Panel } from "../../shared/ui/Panel";
 import { Button } from "../../shared/ui/Button";
 import { Input } from "../../shared/ui/Input";
+import { TaskHints } from "../../features/game/ui/TaskHints";
 
 function prettyDate(value: string): string {
   try {
@@ -40,6 +41,7 @@ export default function InvitesPage() {
   const [redeeming, setRedeeming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [taskRefreshKey, setTaskRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!loading && !token) router.replace("/");
@@ -79,6 +81,7 @@ export default function InvitesPage() {
       );
       setNote("");
       await loadInvites();
+      setTaskRefreshKey((value) => value + 1);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Ошибка создания инвайта");
     } finally {
@@ -96,10 +99,13 @@ export default function InvitesPage() {
         code: redeemCode.trim().toUpperCase(),
       });
       setInfo(
-        `Код активирован. Награда пригласителю: +${response.reward.inviter_shards_delta} shards.`,
+        `Код активирован. Награда пригласителю: +${response.reward.inviter_shards_delta} shards${
+          response.task_rewards.length ? `, задачи: ${response.task_rewards.join(", ")}` : ""
+        }.`,
       );
       setRedeemCode("");
       await loadInvites();
+      setTaskRefreshKey((value) => value + 1);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Ошибка активации инвайта");
     } finally {
@@ -168,8 +174,11 @@ export default function InvitesPage() {
             </div>
           </Panel>
 
-          <Panel variant="pink" className="space-y-5">
-            <div className="space-y-2">
+          <div className="space-y-6">
+            <TaskHints token={token} screen="invites" refreshKey={taskRefreshKey} />
+
+            <Panel variant="pink" className="space-y-5">
+              <div className="space-y-2">
               <div className="text-xs uppercase tracking-[0.26em] text-text-dim">Создать инвайт</div>
               <Input
                 value={delivery}
@@ -211,8 +220,9 @@ export default function InvitesPage() {
               </div>
             )}
 
-            <Button variant="neutral" size="sm" onClick={() => router.push("/dashboard")}>Назад в панель</Button>
-          </Panel>
+              <Button variant="neutral" size="sm" onClick={() => router.push("/dashboard")}>Назад в панель</Button>
+            </Panel>
+          </div>
         </div>
       </div>
     </main>

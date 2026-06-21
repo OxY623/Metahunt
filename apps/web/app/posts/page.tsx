@@ -16,6 +16,7 @@ import { SectionHeading } from "../../shared/ui/SectionHeading";
 import { Panel } from "../../shared/ui/Panel";
 import { Button } from "../../shared/ui/Button";
 import { Input } from "../../shared/ui/Input";
+import { TaskHints } from "../../features/game/ui/TaskHints";
 
 const POST_TYPES = ["short", "signal", "story", "clue"] as const;
 const MEDIA_TYPES = ["image", "video", "audio", "link"] as const;
@@ -82,6 +83,7 @@ export default function PostsPage() {
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [draftReady, setDraftReady] = useState(false);
+  const [taskRefreshKey, setTaskRefreshKey] = useState(0);
 
   const parsedMediaUrl = useMemo(() => parseHttpUrl(mediaUrl), [mediaUrl]);
   const textLeft = MAX_POST_TEXT - text.length;
@@ -215,8 +217,13 @@ export default function PostsPage() {
       });
 
       setItems((prev) => [response.post, ...prev]);
-      setInfo(`Пост создан. Потрачено ${response.shards_spent} осколков.`);
+      setInfo(
+        `Пост создан. Потрачено ${response.shards_spent} осколков${
+          response.shards_rewarded ? `, получено +${response.shards_rewarded}` : ""
+        }.`,
+      );
       resetComposer();
+      setTaskRefreshKey((value) => value + 1);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Ошибка создания поста");
     } finally {
@@ -257,8 +264,11 @@ export default function PostsPage() {
         <SectionHeading as="h1">Постинг</SectionHeading>
 
         <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr] items-start">
-          <Panel variant="pink" className="space-y-4">
-            <div className="text-xs uppercase tracking-[0.26em] text-text-dim">Новый пост</div>
+          <div className="space-y-6">
+            <TaskHints token={token} screen="posts" refreshKey={taskRefreshKey} />
+
+            <Panel variant="pink" className="space-y-4">
+              <div className="text-xs uppercase tracking-[0.26em] text-text-dim">Новый пост</div>
 
             <form
               className="grid gap-3"
@@ -382,7 +392,8 @@ export default function PostsPage() {
                 {info}
               </div>
             )}
-          </Panel>
+            </Panel>
+          </div>
 
           <Panel className="space-y-4">
             <div className="flex items-center justify-between gap-3">

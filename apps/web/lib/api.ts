@@ -189,6 +189,20 @@ export interface ShardRewardResponse {
   ledger: ShardLedgerEntry | null;
 }
 
+export interface GameActivityItem {
+  id: string;
+  title: string;
+  description: string;
+  delta: number;
+  balance_after: number;
+  reason: string;
+  task_key: string | null;
+  screen: string | null;
+  tone: "gain" | "spend" | string;
+  meta: Record<string, unknown> | null;
+  created_at: string;
+}
+
 export interface FactionPulseItem {
   archetype: Archetype;
   count: number;
@@ -211,10 +225,48 @@ export interface FactionPulseResponse {
   factions: FactionPulseItem[];
   edges: FactionPulseEdge[];
   user_recommendation: string;
+  recommended_task_key?: string | null;
+}
+
+export interface ArchetypeTask {
+  key: string;
+  title: string;
+  description: string;
+  archetype: Archetype | null;
+  screen: "dashboard" | "chat" | "map" | "posts" | "invites" | string;
+  trigger: string;
+  reward_reason: string;
+  reward_shards: number;
+  daily_limit: number;
+  progress: number;
+  completed: boolean;
+  locked: boolean;
+  contributes_to: string;
+  next_hint: string;
+  slot: "daily" | "archetype" | "pulse" | string;
+}
+
+export interface ArchetypeTasksResponse {
+  items: ArchetypeTask[];
+  recommended: ArchetypeTask[];
+  user_archetype: Archetype | null;
 }
 
 export interface AdminUser extends UserResponse {
   game_profile?: GameProfileResponse | null;
+}
+
+export interface DemoSeedResponse {
+  users: Array<{
+    id: string;
+    email: string;
+    nickname: string;
+    archetype: Archetype;
+  }>;
+  password: string;
+  messages_created: number;
+  posts_created: number;
+  tiles_seeded: number;
 }
 
 export async function login(
@@ -299,10 +351,26 @@ export async function getShardLedger(
   });
 }
 
+export async function getGameActivity(
+  token: string,
+): Promise<GameActivityItem[]> {
+  return request("/api/v1/game/activity", {
+    headers: authHeaders(token),
+  });
+}
+
 export async function getFactionPulse(
   token: string,
 ): Promise<FactionPulseResponse> {
   return request("/api/v1/game/factions/pulse", {
+    headers: authHeaders(token),
+  });
+}
+
+export async function getArchetypeTasks(
+  token: string,
+): Promise<ArchetypeTasksResponse> {
+  return request("/api/v1/game/tasks", {
     headers: authHeaders(token),
   });
 }
@@ -338,10 +406,19 @@ export async function interact(
   });
 }
 
+export type SkillActionResponse = {
+  msg: string;
+  shards_spent?: number;
+  shards_rewarded?: number;
+  shards_balance?: number;
+  task_rewards?: string[];
+  payload?: unknown;
+};
+
 export async function glitchScreen(
   token: string,
   target_id: string,
-): Promise<{ msg: string; shards_spent: number; shards_rewarded?: number; shards_balance?: number }> {
+): Promise<SkillActionResponse> {
   return request("/api/v1/game/skills/glitch", {
     method: "POST",
     headers: authHeaders(token),
@@ -352,7 +429,7 @@ export async function glitchScreen(
 export async function directStrike(
   token: string,
   target_id: string,
-): Promise<{ msg: string; shards_spent: number; shards_rewarded?: number; shards_balance?: number }> {
+): Promise<SkillActionResponse> {
   return request("/api/v1/game/skills/direct_strike", {
     method: "POST",
     headers: authHeaders(token),
@@ -362,7 +439,7 @@ export async function directStrike(
 
 export async function goldenShield(
   token: string,
-): Promise<{ msg: string; shards_spent: number; shards_balance?: number }> {
+): Promise<SkillActionResponse> {
   return request("/api/v1/game/skills/golden_shield", {
     method: "POST",
     headers: authHeaders(token),
@@ -372,7 +449,7 @@ export async function goldenShield(
 export async function banPort(
   token: string,
   target_id: string,
-): Promise<{ msg: string; shards_spent: number; shards_rewarded?: number; shards_balance?: number }> {
+): Promise<SkillActionResponse> {
   return request("/api/v1/game/skills/ban", {
     method: "POST",
     headers: authHeaders(token),
@@ -385,7 +462,7 @@ export async function whisper(
   target_id: string,
   message: string,
   room = "general",
-): Promise<{ msg: string; shards_spent: number; shards_balance?: number; payload?: unknown }> {
+): Promise<SkillActionResponse> {
   return request("/api/v1/game/skills/whisper", {
     method: "POST",
     headers: authHeaders(token),
@@ -396,7 +473,7 @@ export async function whisper(
 export async function owlDeal(
   token: string,
   target_id: string,
-): Promise<{ msg: string; shards_rewarded: number; shards_balance?: number }> {
+): Promise<SkillActionResponse> {
   return request("/api/v1/game/skills/owl_deal", {
     method: "POST",
     headers: authHeaders(token),
@@ -479,6 +556,13 @@ export async function adminUpdateUserRole(
     body: JSON.stringify({ role }),
   });
 }
+
+export async function adminSeedDemo(token: string): Promise<DemoSeedResponse> {
+  return request("/api/v1/admin/demo/seed", {
+    method: "POST",
+    headers: authHeaders(token),
+  });
+}
 export interface InviteCreator {
   id: string;
   nickname: string;
@@ -536,6 +620,7 @@ export interface RedeemInviteResponse {
     tax_to_bear: number;
     tax_to_fox: number;
   };
+  task_rewards: string[];
 }
 
 export async function getInvites(token: string): Promise<InviteListResponse> {
@@ -611,6 +696,9 @@ export interface MapCheckinResponse {
   visibility: string;
   next_allowed_at: string;
   energy_after: number;
+  shards_rewarded: number;
+  shards_balance: number;
+  task_rewards: string[];
 }
 
 export interface MapPingPayload {
@@ -625,6 +713,8 @@ export interface MapPingResponse {
   effect_until: string;
   shards_spent: number;
   shards_balance: number;
+  shards_rewarded: number;
+  task_rewards: string[];
 }
 
 export async function getMapTiles(
@@ -733,8 +823,10 @@ export interface CreatePostPayload {
 export interface CreatePostResponse {
   post: PostResponse;
   shards_spent: number;
+  shards_rewarded: number;
   shards_balance: number;
   energy_after: number;
+  task_rewards: string[];
 }
 
 export async function getPostsFeed(
