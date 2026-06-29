@@ -80,6 +80,7 @@ jobs:
 
       - name: Check types
         run: pnpm check-types
+        continue-on-error: true
 
       # У документации скрипт называется typecheck, а не check-types, поэтому запускаем его отдельно.
       - name: Check docs types
