@@ -14,6 +14,7 @@ from app.economy.models import ShardLedger
 from app.invites.models import Invite
 from app.map.models import GeoTile, GeoEvent
 from app.posts.models import Post, PostMedia
+from app.arcade.models import ArcadeRun
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)

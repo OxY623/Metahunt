@@ -20,6 +20,7 @@ const PRIMARY_LINKS = [
   { href: "/map", label: "Карта" },
   { href: "/posts", label: "Посты" },
   { href: "/chat", label: "Чат" },
+  { href: "/arcade", label: "8-Bit" },
   { href: "/codex", label: "Кодекс" },
   { href: "/settings", label: "Настройки" },
 ];
@@ -244,4 +245,3 @@ export function SiteHeader() {
     </>
   );
 }
-

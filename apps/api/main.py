@@ -14,6 +14,7 @@ from app.admin.router import router as admin_router
 from app.invites.router import router as invites_router
 from app.map.router import router as map_router
 from app.posts.router import router as posts_router
+from app.arcade.router import router as arcade_router
 
 app = FastAPI(
     title="MetaHunt API",
@@ -38,6 +39,7 @@ app.include_router(admin_router, prefix="/api/v1")
 app.include_router(invites_router, prefix="/api/v1")
 app.include_router(map_router, prefix="/api/v1")
 app.include_router(posts_router, prefix="/api/v1")
+app.include_router(arcade_router, prefix="/api/v1")
 
 
 @app.get("/health")

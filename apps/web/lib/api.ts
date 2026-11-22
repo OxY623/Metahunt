@@ -861,3 +861,40 @@ export async function getPostById(
     headers: authHeaders(token),
   });
 }
+
+export interface ArcadeLeaderboardEntry {
+  rank: number;
+  nickname: string;
+  archetype: Archetype | null;
+  score: number;
+  created_at: string;
+}
+
+export interface ArcadeOverviewResponse {
+  best_score: number;
+  leaderboard: ArcadeLeaderboardEntry[];
+}
+
+export interface ArcadeRunResult {
+  score: number;
+  best_score: number;
+  reward_shards: number;
+  shards_balance: number;
+  reward_available_tomorrow: boolean;
+}
+
+export async function getArcadeOverview(token: string): Promise<ArcadeOverviewResponse> {
+  return request("/api/v1/arcade/overview", { headers: authHeaders(token) });
+}
+
+export async function submitArcadeRun(
+  token: string,
+  score: number,
+  duration_seconds: number,
+): Promise<ArcadeRunResult> {
+  return request("/api/v1/arcade/runs", {
+    method: "POST",
+    headers: authHeaders(token),
+    body: JSON.stringify({ score, duration_seconds }),
+  });
+}
